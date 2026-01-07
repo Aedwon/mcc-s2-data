@@ -155,6 +155,71 @@
             box-shadow: 0 4px 20px rgba(63, 185, 80, 0.4);
         }
 
+        /* Hero Dropdown Styles */
+        .hero-select-container {
+            position: relative;
+        }
+
+        .hero-search-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding-right: 2.5rem;
+        }
+
+        .hero-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1050;
+            display: none;
+        }
+
+        .hero-dropdown.show {
+            display: block;
+        }
+
+        .hero-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .hero-option:hover {
+            background: var(--bg-input);
+        }
+
+        .hero-option img {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            object-fit: cover;
+        }
+
+        .hero-icon-preview {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .hero-icon-preview.d-none {
+            display: none;
+        }
+
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -548,6 +613,7 @@
         // State
         let currentUser = { username: '', role: '' };
         let currentStep = 1;
+        let heroesList = []; // Loaded from Heroes sheet
         const roles = ['gold', 'jungler', 'exp', 'mid', 'roamer'];
         const roleLabels = { gold: 'Gold Laner', jungler: 'Jungler', exp: 'EXP Laner', mid: 'Mid Laner', roamer: 'Roamer' };
 
@@ -613,9 +679,20 @@
             document.getElementById('encoderDashboard').classList.remove('d-none');
             document.getElementById('encoderUsername').textContent = currentUser.username;
 
+            loadHeroesList();
             initPlayerAccordions();
             loadAnalytics();
             loadNextRowNumber();
+        }
+
+        // Load heroes from sheet
+        function loadHeroesList() {
+            google.script.run
+                .withSuccessHandler(heroes => {
+                    heroesList = heroes || [];
+                    console.log('Loaded', heroesList.length, 'heroes');
+                })
+                .getHeroesList();
         }
 
         // Analytics
@@ -732,7 +809,14 @@
                 </div>
                 <div class="col-6">
                   <label class="form-label">Hero</label>
-                  <input type="text" id="${prefix}_hero" class="form-control input-sm">
+                  <div class="hero-select-container">
+                    <input type="text" id="${prefix}_hero" class="form-control input-sm hero-search-input" 
+                           placeholder="Search hero..." autocomplete="off"
+                           onfocus="showHeroDropdown('${prefix}_hero')"
+                           oninput="filterHeroes('${prefix}_hero')">
+                    <img id="${prefix}_hero_icon" class="hero-icon-preview d-none" src="" alt="">
+                    <div id="${prefix}_hero_dropdown" class="hero-dropdown"></div>
+                  </div>
                 </div>
                 <div class="col-4">
                   <label class="form-label">Kills</label>
@@ -768,6 +852,54 @@
         </div>
       `;
         }
+
+        // Hero dropdown functions
+        function showHeroDropdown(inputId) {
+            const dropdown = document.getElementById(inputId + '_dropdown');
+            filterHeroes(inputId);
+            dropdown.classList.add('show');
+        }
+
+        function filterHeroes(inputId) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(inputId + '_dropdown');
+            const search = input.value.toLowerCase();
+
+            const filtered = heroesList.filter(h =>
+                h.name.toLowerCase().includes(search) ||
+                h.code.toLowerCase().includes(search)
+            ).slice(0, 20); // Limit to 20 results
+
+            dropdown.innerHTML = filtered.map(h => `
+                <div class="hero-option" onclick="selectHero('${inputId}', '${h.name}', '${h.icon || ''}')">
+                    ${h.icon ? `<img src="${h.icon}" alt="${h.name}">` : ''}
+                    <span>${h.name}</span>
+                </div>
+            `).join('') || '<div class="text-secondary p-2 small">No heroes found</div>';
+        }
+
+        function selectHero(inputId, name, icon) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(inputId + '_dropdown');
+            const iconEl = document.getElementById(inputId + '_icon');
+
+            input.value = name;
+            dropdown.classList.remove('show');
+
+            if (icon && iconEl) {
+                iconEl.src = icon;
+                iconEl.classList.remove('d-none');
+            } else if (iconEl) {
+                iconEl.classList.add('d-none');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.hero-select-container')) {
+                document.querySelectorAll('.hero-dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
 
         // Save Match
         function saveMatch() {

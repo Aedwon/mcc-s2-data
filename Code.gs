@@ -7,13 +7,47 @@
 const CONFIG = {
   SHEETS: {
     DB: 'DB',
-    ADMIN_USERS: 'Admin_Users'
+    ADMIN_USERS: 'Admin_Users',
+    HEROES: 'Heroes'
   },
   ROLES: {
     ENCODER: 'Encoder',
     ADMIN: 'Admin'
   }
 };
+
+// ============ HERO DATA ============
+
+/**
+ * Gets the list of heroes from the Heroes sheet
+ * @returns {Array} Array of {code, name, icon} objects, sorted alphabetically
+ */
+function getHeroesList() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const heroSheet = ss.getSheetByName(CONFIG.SHEETS.HEROES);
+    
+    if (!heroSheet || heroSheet.getLastRow() <= 1) {
+      return [];
+    }
+    
+    const data = heroSheet.getRange(2, 1, heroSheet.getLastRow() - 1, 3).getValues();
+    
+    const heroes = data
+      .filter(row => row[1]) // Filter out empty rows
+      .map(row => ({
+        code: row[0] || '',
+        name: row[1] || '',
+        icon: row[2] || '' // This will be the image URL or empty
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    return heroes;
+  } catch (error) {
+    console.error('getHeroesList error:', error);
+    return [];
+  }
+}
 
 // ============ TRIGGERS & MENU ============
 
