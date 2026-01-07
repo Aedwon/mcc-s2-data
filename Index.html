@@ -172,7 +172,7 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: var(--bg-card);
+            background: #1c2128;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             max-height: 200px;
@@ -191,10 +191,21 @@
             padding: 0.5rem 0.75rem;
             cursor: pointer;
             transition: background 0.2s;
+            color: #e6edf3;
         }
 
         .hero-option:hover {
-            background: var(--bg-input);
+            background: #30363d;
+        }
+
+        .hero-option.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        .hero-option.disabled:hover {
+            background: transparent;
         }
 
         .hero-option img {
@@ -203,17 +214,25 @@
             border-radius: 4px;
             margin-right: 0.5rem;
             object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .hero-option span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .hero-icon-preview {
             position: absolute;
-            right: 0.5rem;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
             width: 24px;
             height: 24px;
             border-radius: 4px;
             object-fit: cover;
+            pointer-events: none;
         }
 
         .hero-icon-preview.d-none {
@@ -1008,6 +1027,34 @@
             dropdown.classList.add('show');
         }
 
+        // Get all currently selected heroes (for draft validation)
+        function getSelectedHeroes(excludeInputId) {
+            const heroInputIds = [
+                // Blue bans
+                'blueBan1', 'blueBan2', 'blueBan3', 'blueBan4', 'blueBan5',
+                // Blue picks
+                'bluePick1', 'bluePick2', 'bluePick3', 'bluePick4', 'bluePick5',
+                // Red bans
+                'redBan1', 'redBan2', 'redBan3', 'redBan4', 'redBan5',
+                // Red picks
+                'redPick1', 'redPick2', 'redPick3', 'redPick4', 'redPick5',
+                // Player heroes
+                'blue_gold_hero', 'blue_jungler_hero', 'blue_exp_hero', 'blue_mid_hero', 'blue_roamer_hero',
+                'red_gold_hero', 'red_jungler_hero', 'red_exp_hero', 'red_mid_hero', 'red_roamer_hero'
+            ];
+
+            const selected = new Set();
+            heroInputIds.forEach(id => {
+                if (id !== excludeInputId) {
+                    const el = document.getElementById(id);
+                    if (el && el.value.trim()) {
+                        selected.add(el.value.trim().toLowerCase());
+                    }
+                }
+            });
+            return selected;
+        }
+
         function filterHeroes(inputId) {
             const input = document.getElementById(inputId);
             const dropdown = document.getElementById(inputId + '_dropdown');
@@ -1018,18 +1065,22 @@
             }
 
             const search = input.value.toLowerCase();
+            const selectedHeroes = getSelectedHeroes(inputId);
 
             const filtered = heroesList.filter(h =>
                 h.name.toLowerCase().includes(search) ||
                 h.code.toLowerCase().includes(search)
-            ).slice(0, 20); // Limit to 20 results
+            ).slice(0, 25); // Limit to 25 results
 
-            dropdown.innerHTML = filtered.map(h => `
-                <div class="hero-option" onclick="selectHero('${inputId}', '${h.name}', '${h.icon || ''}')">
+            dropdown.innerHTML = filtered.map(h => {
+                const isDisabled = selectedHeroes.has(h.name.toLowerCase());
+                return `
+                <div class="hero-option ${isDisabled ? 'disabled' : ''}" 
+                     onclick="${isDisabled ? '' : `selectHero('${inputId}', '${h.name.replace(/'/g, "\\'")}', '${h.icon || ''}')`}">
                     ${h.icon ? `<img src="${h.icon}" alt="${h.name}">` : ''}
-                    <span>${h.name}</span>
+                    <span>${h.name}${isDisabled ? ' (taken)' : ''}</span>
                 </div>
-            `).join('') || '<div class="text-secondary p-2 small">No heroes found</div>';
+            `}).join('') || '<div class="text-secondary p-2 small">No heroes found</div>';
         }
 
         function selectHero(inputId, name, icon) {
