@@ -1027,9 +1027,9 @@
             dropdown.classList.add('show');
         }
 
-        // Get all currently selected heroes (for draft validation)
-        function getSelectedHeroes(excludeInputId) {
-            const heroInputIds = [
+        // Get all currently selected heroes for DRAFT fields (bans and picks only)
+        function getDraftSelectedHeroes(excludeInputId) {
+            const draftInputIds = [
                 // Blue bans
                 'blueBan1', 'blueBan2', 'blueBan3', 'blueBan4', 'blueBan5',
                 // Blue picks
@@ -1037,14 +1037,11 @@
                 // Red bans
                 'redBan1', 'redBan2', 'redBan3', 'redBan4', 'redBan5',
                 // Red picks
-                'redPick1', 'redPick2', 'redPick3', 'redPick4', 'redPick5',
-                // Player heroes
-                'blue_gold_hero', 'blue_jungler_hero', 'blue_exp_hero', 'blue_mid_hero', 'blue_roamer_hero',
-                'red_gold_hero', 'red_jungler_hero', 'red_exp_hero', 'red_mid_hero', 'red_roamer_hero'
+                'redPick1', 'redPick2', 'redPick3', 'redPick4', 'redPick5'
             ];
 
             const selected = new Set();
-            heroInputIds.forEach(id => {
+            draftInputIds.forEach(id => {
                 if (id !== excludeInputId) {
                     const el = document.getElementById(id);
                     if (el && el.value.trim()) {
@@ -1053,6 +1050,53 @@
                 }
             });
             return selected;
+        }
+
+        // Get team's picked heroes
+        function getTeamPicks(team) {
+            const pickIds = team === 'blue'
+                ? ['bluePick1', 'bluePick2', 'bluePick3', 'bluePick4', 'bluePick5']
+                : ['redPick1', 'redPick2', 'redPick3', 'redPick4', 'redPick5'];
+
+            const picks = [];
+            pickIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value.trim()) {
+                    picks.push(el.value.trim().toLowerCase());
+                }
+            });
+            return picks;
+        }
+
+        // Get heroes already assigned to roles in a team
+        function getTeamAssignedHeroes(team, excludeInputId) {
+            const roleHeroIds = [
+                `${team}_gold_hero`, `${team}_jungler_hero`, `${team}_exp_hero`,
+                `${team}_mid_hero`, `${team}_roamer_hero`
+            ];
+
+            const assigned = new Set();
+            roleHeroIds.forEach(id => {
+                if (id !== excludeInputId) {
+                    const el = document.getElementById(id);
+                    if (el && el.value.trim()) {
+                        assigned.add(el.value.trim().toLowerCase());
+                    }
+                }
+            });
+            return assigned;
+        }
+
+        // Determine if this is a draft field or player hero field
+        function isDraftField(inputId) {
+            return inputId.includes('Ban') || inputId.includes('Pick');
+        }
+
+        // Determine team from input ID
+        function getTeamFromInputId(inputId) {
+            if (inputId.startsWith('blue') || inputId.startsWith('blue_')) return 'blue';
+            if (inputId.startsWith('red') || inputId.startsWith('red_')) return 'red';
+            return null;
         }
 
         function filterHeroes(inputId) {
@@ -1065,22 +1109,45 @@
             }
 
             const search = input.value.toLowerCase();
-            const selectedHeroes = getSelectedHeroes(inputId);
+            const isForDraft = isDraftField(inputId);
+            const team = getTeamFromInputId(inputId);
 
-            const filtered = heroesList.filter(h =>
+            let heroPool = heroesList;
+            let takenHeroes = new Set();
+
+            if (isForDraft) {
+                // Draft fields: all heroes available, but mark taken ones
+                takenHeroes = getDraftSelectedHeroes(inputId);
+            } else if (team) {
+                // Player hero fields: only show team's picks
+                const teamPicks = getTeamPicks(team);
+                if (teamPicks.length === 0) {
+                    dropdown.innerHTML = '<div class="text-warning p-2 small">Select team picks first</div>';
+                    return;
+                }
+                heroPool = heroesList.filter(h => teamPicks.includes(h.name.toLowerCase()));
+                takenHeroes = getTeamAssignedHeroes(team, inputId);
+            }
+
+            const filtered = heroPool.filter(h =>
                 h.name.toLowerCase().includes(search) ||
                 h.code.toLowerCase().includes(search)
-            ).slice(0, 25); // Limit to 25 results
+            ).slice(0, 25);
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="text-secondary p-2 small">No heroes found</div>';
+                return;
+            }
 
             dropdown.innerHTML = filtered.map(h => {
-                const isDisabled = selectedHeroes.has(h.name.toLowerCase());
+                const isDisabled = takenHeroes.has(h.name.toLowerCase());
                 return `
                 <div class="hero-option ${isDisabled ? 'disabled' : ''}" 
                      onclick="${isDisabled ? '' : `selectHero('${inputId}', '${h.name.replace(/'/g, "\\'")}', '${h.icon || ''}')`}">
                     ${h.icon ? `<img src="${h.icon}" alt="${h.name}">` : ''}
-                    <span>${h.name}${isDisabled ? ' (taken)' : ''}</span>
+                    <span>${h.name}${isDisabled ? ' (assigned)' : ''}</span>
                 </div>
-            `}).join('') || '<div class="text-secondary p-2 small">No heroes found</div>';
+            `}).join('');
         }
 
         function selectHero(inputId, name, icon) {
