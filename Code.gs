@@ -192,6 +192,50 @@ function getStages() {
 }
 
 /**
+ * Gets unique player names from the database for autocomplete
+ * @returns {Array} Array of player names sorted alphabetically
+ */
+function getPlayerNames() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
+    
+    if (!dbSheet || dbSheet.getLastRow() <= 1) return [];
+    
+    // Get all data to iterate through player columns
+    const data = dbSheet.getDataRange().getValues();
+    const players = new Set();
+    
+    // Player columns
+    const blueRoles = ROLE_COLUMNS.blue;
+    const redRoles = ROLE_COLUMNS.red;
+    
+    for (let i = 1; i < data.length; i++) {
+      // Check blue team players
+      Object.values(blueRoles).forEach(cols => {
+        const name = data[i][cols.player];
+        if (name && name.toString().trim()) {
+          players.add(name.toString().trim());
+        }
+      });
+      
+      // Check red team players
+      Object.values(redRoles).forEach(cols => {
+        const name = data[i][cols.player];
+        if (name && name.toString().trim()) {
+          players.add(name.toString().trim());
+        }
+      });
+    }
+    
+    return Array.from(players).sort();
+  } catch (error) {
+    console.error('getPlayerNames error:', error);
+    return [];
+  }
+}
+
+/**
  * Gets summary statistics for the analytics dashboard
  * @param {string} stageFilter Optional stage to filter by (empty or 'All' = no filter)
  * @returns {Object} Summary data

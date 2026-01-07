@@ -471,10 +471,111 @@
         .text-secondary {
             color: var(--text-secondary) !important;
         }
+
+        /* Sticky Table Headers */
+        .table-responsive {
+            max-height: 600px;
+            overflow: auto;
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 2px -1px var(--border-color);
+        }
+
+        /* Visual Data Bars */
+        .data-bar-bg {
+            position: relative;
+            z-index: 1;
+        }
+
+        .data-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+            transition: width 0.3s ease;
+        }
+
+        .data-bar-blue {
+            background-color: var(--accent-blue);
+        }
+
+        .data-bar-red {
+            background-color: var(--accent-red);
+        }
+
+        .data-bar-green {
+            background-color: var(--accent-green);
+        }
+
+        .data-bar-yellow {
+            background-color: var(--accent-yellow);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+        }
+
+        .toast {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .toast-header {
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Autocomplete Dropdown */
+        .autocomplete-list {
+            position: absolute;
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.active {
+            background-color: var(--bg-input);
+            color: var(--accent-yellow);
+        }
     </style>
 </head>
 
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <div class="card login-card">
@@ -1137,6 +1238,7 @@
             initPlayerAccordions();
             loadAnalytics();
             loadNextRowNumber();
+            loadPlayerNames(); // NEW: Load player names for autocomplete
         }
 
         // Load heroes from sheet
@@ -1268,6 +1370,91 @@
       `).join('');
         }
 
+        // QoL Functions
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-dark border-0 mb-2`;
+            toast.style.display = 'flex';
+            toast.style.minWidth = '250px';
+            if (type === 'error') toast.style.borderLeft = '4px solid var(--accent-red)';
+
+            toast.innerHTML = `
+                <div class="d-flex w-100">
+                    <div class="toast-body">
+                        ${type === 'success' ? '<i class="bi bi-check-circle-fill text-success me-2"></i>' : '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>'}
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto remove
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        let allPlayerNames = [];
+
+        function loadPlayerNames() {
+            google.script.run
+                .withSuccessHandler(names => {
+                    allPlayerNames = names || [];
+                    console.log('Loaded', allPlayerNames.length, 'player names');
+                })
+                .getPlayerNames();
+        }
+
+        function setupPlayerAutocomplete(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            // Create list element
+            let list = document.getElementById(inputId + '_list');
+            if (!list) {
+                list = document.createElement('div');
+                list.id = inputId + '_list';
+                list.className = 'autocomplete-list';
+                input.parentNode.style.position = 'relative'; // Ensure parent is relative
+                input.parentNode.appendChild(list);
+            }
+
+            input.addEventListener('input', function () {
+                const val = this.value.toLowerCase();
+                list.innerHTML = '';
+                list.style.display = 'none';
+
+                if (!val) return;
+
+                const matches = allPlayerNames.filter(name => name.toLowerCase().includes(val));
+
+                if (matches.length > 0) {
+                    list.style.display = 'block';
+                    matches.forEach(name => {
+                        const item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+                        item.textContent = name;
+                        item.onclick = function () {
+                            input.value = name;
+                            list.style.display = 'none';
+                        };
+                        list.appendChild(item);
+                    });
+                }
+            });
+
+            // Close on click outside
+            document.addEventListener('click', function (e) {
+                if (e.target !== input && e.target !== list) {
+                    list.style.display = 'none';
+                }
+            });
+        }
+
         // Player stats table
         function renderPlayerTable() {
             const tbody = document.getElementById('playerStatsBody');
@@ -1291,7 +1478,10 @@
                     <td>${p.player}</td>
                     <td>${p.games}</td>
                     <td>${p.avgKDA}</td>
-                    <td class="${p.winRate >= 50 ? 'text-success' : 'text-danger'}">${p.winRate}%</td>
+                    <td class="data-bar-bg">
+                        <div class="data-bar ${p.winRate >= 50 ? 'data-bar-green' : 'data-bar-red'}" style="width: ${p.winRate}%"></div>
+                        <span class="${p.winRate >= 50 ? 'text-success' : 'text-danger'} position-relative">${p.winRate}%</span>
+                    </td>
                     <td>${p.avgGPM}</td>
                 </tr>
             `).join('');
@@ -1328,9 +1518,18 @@
             tbody.innerHTML = filtered.map(h => `
                 <tr>
                     <td>${h.hero}</td>
-                    <td>${h.picks}</td>
-                    <td>${h.bans}</td>
-                    <td class="${h.winRate >= 50 ? 'text-success' : 'text-danger'}">${h.winRate}%</td>
+                    <td class="data-bar-bg">
+                        <div class="data-bar data-bar-yellow" style="width: ${Math.min(h.pickRate * 2, 100)}%"></div>
+                        <span class="position-relative">${h.picks} (${h.pickRate}%)</span>
+                    </td>
+                    <td class="data-bar-bg">
+                         <div class="data-bar data-bar-red" style="width: ${Math.min(h.banRate * 2, 100)}%"></div>
+                         <span class="position-relative">${h.bans} (${h.banRate}%)</span>
+                    </td>
+                    <td class="data-bar-bg">
+                        <div class="data-bar ${h.winRate >= 50 ? 'data-bar-green' : 'data-bar-red'}" style="width: ${h.winRate}%"></div>
+                        <span class="${h.winRate >= 50 ? 'text-success' : 'text-danger'} position-relative">${h.winRate}%</span>
+                    </td>
                     <td>${h.avgKDA}</td>
                 </tr>
             `).join('');
@@ -1418,6 +1617,12 @@
 
             blueContainer.innerHTML = roles.map((role, i) => createPlayerAccordion('blue', role, i === 0)).join('');
             redContainer.innerHTML = roles.map((role, i) => createPlayerAccordion('red', role, i === 0)).join('');
+
+            // Setup autocomplete
+            roles.forEach(role => {
+                setupPlayerAutocomplete('blue_' + role + '_name');
+                setupPlayerAutocomplete('red_' + role + '_name');
+            });
         }
 
         function createPlayerAccordion(team, role, expanded) {
@@ -1483,8 +1688,49 @@
         }
 
         // Hero dropdown functions
+        // Hero dropdown functions
         function showHeroDropdown(inputId) {
             const dropdown = document.getElementById(inputId + '_dropdown');
+            const input = document.getElementById(inputId);
+
+            // Add keyboard navigation support if not already added
+            if (!input.hasAttribute('data-keyboard-nav')) {
+                input.setAttribute('data-keyboard-nav', 'true');
+                input.addEventListener('keydown', function (e) {
+                    if (!dropdown.classList.contains('show')) return;
+
+                    const options = dropdown.querySelectorAll('.hero-option:not(.disabled)');
+                    if (options.length === 0) return;
+
+                    let active = dropdown.querySelector('.hero-option.active');
+                    let index = Array.from(options).indexOf(active);
+
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (index < options.length - 1) index++;
+                        else index = 0;
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (index > 0) index--;
+                        else index = options.length - 1;
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (active) active.click();
+                        return;
+                    } else if (e.key === 'Escape') {
+                        dropdown.classList.remove('show');
+                        return;
+                    }
+
+                    // Update active class
+                    if (active) active.classList.remove('active');
+                    if (options[index]) {
+                        options[index].classList.add('active');
+                        options[index].scrollIntoView({ block: 'nearest' });
+                    }
+                });
+            }
+
             filterHeroes(inputId);
             dropdown.classList.add('show');
         }
@@ -1648,19 +1894,22 @@
                     document.getElementById('saveBtn').innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Match';
 
                     if (result.success) {
-                        alert('Match saved successfully!');
+                        showToast('Match saved successfully!');
+
+                        // Ask to clear or just reset? User workflow usually implies clearing.
+                        // Implemented auto-reset in previous alert verification, sticking to that.
                         resetForm();
                         loadAnalytics();
                         loadNextRowNumber();
                         nextStep(1);
                     } else {
-                        alert('Error: ' + result.message);
+                        showToast('Error: ' + result.message, 'error');
                     }
                 })
                 .withFailureHandler(err => {
                     document.getElementById('saveBtn').disabled = false;
                     document.getElementById('saveBtn').innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Match';
-                    alert('Error saving match: ' + err.message);
+                    showToast('Error saving match: ' + err.message, 'error');
                 })
                 .processForm(formData, currentUser.username);
         }
