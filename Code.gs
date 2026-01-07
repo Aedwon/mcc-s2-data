@@ -31,15 +31,13 @@ function onOpen() {
 }
 
 /**
- * Shows the full-screen login modal
+ * Shows the full-screen sidebar (no X button to close)
  */
 function showLoginModal() {
   const html = HtmlService.createHtmlOutputFromFile('Index')
-    .setWidth(1200)
-    .setHeight(800)
     .setTitle('MCC Data Entry App');
   
-  SpreadsheetApp.getUi().showModalDialog(html, 'MCC Data Entry App');
+  SpreadsheetApp.getUi().showSidebar(html);
 }
 
 // ============ AUTHENTICATION ============
@@ -235,6 +233,38 @@ function getNextRowNumber() {
 }
 
 /**
+ * Checks if a Battle ID already exists in the database
+ * @param {string} battleId The Battle ID to check
+ * @returns {Object} {exists: boolean, message: string}
+ */
+function checkBattleIdExists(battleId) {
+  try {
+    if (!battleId || battleId.trim() === '' || battleId.toLowerCase() === 'n/a' || battleId.toLowerCase() === 'default') {
+      return { exists: false, message: 'OK' };
+    }
+    
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
+    
+    if (!dbSheet || dbSheet.getLastRow() <= 1) {
+      return { exists: false, message: 'OK' };
+    }
+    
+    const data = dbSheet.getRange(2, 4, dbSheet.getLastRow() - 1, 1).getValues();
+    
+    for (let i = 0; i < data.length; i++) {
+      if (data[i][0] && data[i][0].toString().trim() === battleId.trim()) {
+        return { exists: true, message: 'Battle ID "' + battleId + '" already exists in row ' + (i + 2) };
+      }
+    }
+    
+    return { exists: false, message: 'OK' };
+  } catch (error) {
+    return { exists: false, message: 'Error checking: ' + error.message };
+  }
+}
+
+/**
  * Processes and saves form data to the DB sheet
  * @param {Object} formData Form data from the frontend
  * @param {string} encoderUsername Username of the encoder
@@ -251,6 +281,10 @@ function processForm(formData, encoderUsername) {
       dbSheet.appendRow(getColumnHeaders());
     }
     
+    // Auto-determine the row number
+    const autoRowNum = getNextRowNumber();
+    formData.matchInfo.rowNum = autoRowNum;
+    
     // Build the row array matching the 118-column structure
     const row = buildRowFromFormData(formData);
     
@@ -263,7 +297,7 @@ function processForm(formData, encoderUsername) {
     return { 
       success: true, 
       message: 'Match saved successfully!',
-      rowNumber: formData.matchInfo.rowNum
+      rowNumber: autoRowNum
     };
   } catch (error) {
     console.error('processForm error:', error);

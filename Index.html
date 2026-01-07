@@ -1,516 +1,647 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MCC Data Entry App</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-    :root {
-      --bg-dark: #0d1117;
-      --bg-card: #161b22;
-      --bg-input: #21262d;
-      --border-color: #30363d;
-      --accent-blue: #58a6ff;
-      --accent-red: #f85149;
-      --accent-green: #3fb950;
-      --accent-gold: #d29922;
-      --text-primary: #e6edf3;
-      --text-secondary: #8b949e;
-    }
-    body {
-      background: var(--bg-dark);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-    }
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-    }
-    .form-control, .form-select {
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-    }
-    .form-control:focus, .form-select:focus {
-      background: var(--bg-input);
-      border-color: var(--accent-blue);
-      color: var(--text-primary);
-      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent-blue), #1f6feb);
-      border: none;
-      font-weight: 600;
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3); }
-    .btn-danger { background: linear-gradient(135deg, var(--accent-red), #da3633); border: none; }
-    .btn-success { background: linear-gradient(135deg, var(--accent-green), #238636); border: none; }
-    .stat-card {
-      background: linear-gradient(135deg, var(--bg-card), #1c2128);
-      padding: 1.5rem;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      text-align: center;
-    }
-    .stat-card h2 { font-size: 2.5rem; font-weight: 700; margin: 0; }
-    .stat-card p { color: var(--text-secondary); margin: 0; font-size: 0.9rem; }
-    .nav-tabs { border-bottom: 1px solid var(--border-color); }
-    .nav-tabs .nav-link {
-      color: var(--text-secondary);
-      border: none;
-      padding: 1rem 1.5rem;
-      font-weight: 500;
-    }
-    .nav-tabs .nav-link.active {
-      color: var(--accent-blue);
-      background: transparent;
-      border-bottom: 2px solid var(--accent-blue);
-    }
-    .team-header {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .team-blue { background: linear-gradient(135deg, rgba(88, 166, 255, 0.2), rgba(88, 166, 255, 0.1)); color: var(--accent-blue); }
-    .team-red { background: linear-gradient(135deg, rgba(248, 81, 73, 0.2), rgba(248, 81, 73, 0.1)); color: var(--accent-red); }
-    .accordion-button {
-      background: var(--bg-input);
-      color: var(--text-primary);
-      font-weight: 500;
-    }
-    .accordion-button:not(.collapsed) { background: var(--bg-card); color: var(--accent-blue); }
-    .accordion-button::after { filter: invert(1); }
-    .accordion-body { background: var(--bg-card); }
-    .floating-save {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      z-index: 1000;
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-      border-radius: 50px;
-      box-shadow: 0 4px 20px rgba(63, 185, 80, 0.4);
-    }
-    .login-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .login-card {
-      width: 100%;
-      max-width: 400px;
-      padding: 2.5rem;
-    }
-    .logo-text {
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
-    .step-indicator {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
-    .step-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--border-color);
-      transition: all 0.3s;
-    }
-    .step-dot.active { background: var(--accent-blue); transform: scale(1.2); }
-    .step-dot.completed { background: var(--accent-green); }
-    .form-label { color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; }
-    .table { color: var(--text-primary); }
-    .table thead th { border-color: var(--border-color); color: var(--text-secondary); font-weight: 500; }
-    .table tbody td { border-color: var(--border-color); }
-    .input-sm { padding: 0.35rem 0.5rem; font-size: 0.85rem; }
-    .winner-blue { color: var(--accent-blue); font-weight: 600; }
-    .winner-red { color: var(--accent-red); font-weight: 600; }
-    .spinner-border { width: 1rem; height: 1rem; }
-    .alert { border-radius: 8px; }
-  </style>
-</head>
-<body>
-  <!-- Login Screen -->
-  <div id="loginScreen" class="login-container">
-    <div class="card login-card">
-      <div class="logo-text">MCC Data</div>
-      <p class="text-center text-secondary mb-4">Match Data Entry System</p>
-      <div id="loginError" class="alert alert-danger d-none"></div>
-      <div class="mb-3">
-        <label class="form-label">Username</label>
-        <input type="text" id="username" class="form-control" placeholder="Enter username">
-      </div>
-      <div class="mb-4">
-        <label class="form-label">Password</label>
-        <input type="password" id="password" class="form-control" placeholder="Enter password">
-      </div>
-      <button onclick="handleLogin()" class="btn btn-primary w-100 py-2">
-        <span id="loginBtnText">Sign In</span>
-        <span id="loginSpinner" class="spinner-border d-none"></span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Admin Dashboard -->
-  <div id="adminDashboard" class="container py-5 d-none">
-    <div class="text-center mb-5">
-      <h1 class="logo-text">Admin Dashboard</h1>
-      <p class="text-secondary">Welcome, <span id="adminUsername"></span></p>
-    </div>
-    <div class="row justify-content-center g-4">
-      <div class="col-md-4">
-        <div class="card p-4 text-center">
-          <i class="bi bi-unlock-fill fs-1 text-warning mb-3"></i>
-          <h5>Unlock Sheets</h5>
-          <p class="text-secondary small">Show hidden backend sheets</p>
-          <button onclick="handleUnlock()" class="btn btn-warning w-100">Unlock</button>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card p-4 text-center">
-          <i class="bi bi-grid-fill fs-1 text-primary mb-3"></i>
-          <h5>Launch App</h5>
-          <p class="text-secondary small">Open data entry interface</p>
-          <button onclick="showEncoderDashboard()" class="btn btn-primary w-100">Launch</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Encoder Dashboard -->
-  <div id="encoderDashboard" class="container-fluid py-4 d-none">
-    <div class="d-flex justify-content-between align-items-center mb-4 px-3">
-      <h4 class="logo-text mb-0">MCC Data Entry</h4>
-      <span class="text-secondary">Logged in as: <strong id="encoderUsername"></strong></span>
-    </div>
-    
-    <ul class="nav nav-tabs px-3" id="mainTabs">
-      <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" href="#analyticsTab">
-          <i class="bi bi-graph-up me-2"></i>Analytics
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#entryTab">
-          <i class="bi bi-pencil-square me-2"></i>Data Entry
-        </a>
-      </li>
-    </ul>
-    
-    <div class="tab-content p-3">
-      <!-- Analytics Tab -->
-      <div class="tab-pane fade show active" id="analyticsTab">
-        <div class="row g-4 mb-4">
-          <div class="col-md-3">
-            <div class="stat-card">
-              <h2 id="statTotal">0</h2>
-              <p>Total Games</p>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="stat-card">
-              <h2 id="statBlue" class="text-primary">0%</h2>
-              <p>Blue Side Win Rate</p>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="stat-card">
-              <h2 id="statRed" class="text-danger">0%</h2>
-              <p>Red Side Win Rate</p>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="stat-card">
-              <h2 id="statDuration">0:00</h2>
-              <p>Avg Duration</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card p-4">
-          <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Matches</h5>
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Stage</th>
-                  <th>Blue Team</th>
-                  <th>Red Team</th>
-                  <th>Duration</th>
-                  <th>Winner</th>
-                </tr>
-              </thead>
-              <tbody id="recentMatchesBody">
-                <tr><td colspan="6" class="text-center text-secondary">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Data Entry Tab -->
-      <div class="tab-pane fade" id="entryTab">
-        <div class="step-indicator">
-          <div class="step-dot active" id="step1Dot"></div>
-          <div class="step-dot" id="step2Dot"></div>
-          <div class="step-dot" id="step3Dot"></div>
-        </div>
-        
-        <!-- Step 1: Match Info -->
-        <div id="step1" class="card p-4 mb-4">
-          <h5 class="mb-4"><i class="bi bi-info-circle me-2"></i>Match Information</h5>
-          <div class="row g-3">
-            <div class="col-md-2">
-              <label class="form-label">#</label>
-              <input type="number" id="matchNum" class="form-control" placeholder="Row #">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Stage</label>
-              <input type="text" id="matchStage" class="form-control" placeholder="e.g. UR Min DE 1">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Match</label>
-              <input type="text" id="matchMatch" class="form-control" placeholder="1, 2, 3...">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Battle ID</label>
-              <input type="text" id="battleId" class="form-control" placeholder="Battle ID">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Duration</label>
-              <input type="text" id="gameDuration" class="form-control" placeholder="MM:SS">
-            </div>
-          </div>
-          <div class="row g-3 mt-2">
-            <div class="col-md-3">
-              <label class="form-label">Winner</label>
-              <select id="winner" class="form-select">
-                <option value="">Select Winner</option>
-                <option value="Blue">Blue</option>
-                <option value="Red">Red</option>
-              </select>
-            </div>
-          </div>
-          <div class="text-end mt-4">
-            <button onclick="nextStep(2)" class="btn btn-primary">Next: Team Data <i class="bi bi-arrow-right"></i></button>
-          </div>
-        </div>
-        
-        <!-- Step 2: Team Draft -->
-        <div id="step2" class="d-none">
-          <div class="row g-4">
-            <!-- Blue Team -->
-            <div class="col-md-6">
-              <div class="card p-4">
-                <div class="team-header team-blue mb-3"><i class="bi bi-shield-fill me-2"></i>Blue Side</div>
-                <div class="mb-3">
-                  <label class="form-label">Team Name</label>
-                  <input type="text" id="blueTeamName" class="form-control">
-                </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-12"><label class="form-label">Bans (Phase 1)</label></div>
-                  <div class="col-4"><input type="text" id="blueBan1" class="form-control input-sm" placeholder="Ban 1"></div>
-                  <div class="col-4"><input type="text" id="blueBan2" class="form-control input-sm" placeholder="Ban 2"></div>
-                  <div class="col-4"><input type="text" id="blueBan3" class="form-control input-sm" placeholder="Ban 3"></div>
-                </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-12"><label class="form-label">Picks (Phase 1)</label></div>
-                  <div class="col-4"><input type="text" id="bluePick1" class="form-control input-sm" placeholder="Pick 1"></div>
-                  <div class="col-4"><input type="text" id="bluePick2" class="form-control input-sm" placeholder="Pick 2"></div>
-                  <div class="col-4"><input type="text" id="bluePick3" class="form-control input-sm" placeholder="Pick 3"></div>
-                </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-12"><label class="form-label">Bans (Phase 2)</label></div>
-                  <div class="col-6"><input type="text" id="blueBan4" class="form-control input-sm" placeholder="Ban 4"></div>
-                  <div class="col-6"><input type="text" id="blueBan5" class="form-control input-sm" placeholder="Ban 5"></div>
-                </div>
-                <div class="row g-2">
-                  <div class="col-12"><label class="form-label">Picks (Phase 2)</label></div>
-                  <div class="col-6"><input type="text" id="bluePick4" class="form-control input-sm" placeholder="Pick 4"></div>
-                  <div class="col-6"><input type="text" id="bluePick5" class="form-control input-sm" placeholder="Pick 5"></div>
-                </div>
-              </div>
-            </div>
-            <!-- Red Team -->
-            <div class="col-md-6">
-              <div class="card p-4">
-                <div class="team-header team-red mb-3"><i class="bi bi-shield-fill me-2"></i>Red Side</div>
-                <div class="mb-3">
-                  <label class="form-label">Team Name</label>
-                  <input type="text" id="redTeamName" class="form-control">
-                </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-12"><label class="form-label">Bans (Phase 1)</label></div>
-                  <div class="col-4"><input type="text" id="redBan1" class="form-control input-sm" placeholder="Ban 1"></div>
-                  <div class="col-4"><input type="text" id="redBan2" class="form-control input-sm" placeholder="Ban 2"></div>
-                  <div class="col-4"><input type="text" id="redBan3" class="form-control input-sm" placeholder="Ban 3"></div>
-                </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-12"><label class="form-label">Picks (Phase 1)</label></div>
-                  <div class="col-4"><input type="text" id="redPick1" class="form-control input-sm" placeholder="Pick 1"></div>
-                  <div class="col-4"><input type="text" id="redPick2" class="form-control input-sm" placeholder="Pick 2"></div>
-                  <div class="col-4"><input type="text" id="redPick3" class="form-control input-sm" placeholder="Pick 3"></div>
-                </div>
-                <div class="row g-2 mb-3">
-                  <div class="col-12"><label class="form-label">Bans (Phase 2)</label></div>
-                  <div class="col-6"><input type="text" id="redBan4" class="form-control input-sm" placeholder="Ban 4"></div>
-                  <div class="col-6"><input type="text" id="redBan5" class="form-control input-sm" placeholder="Ban 5"></div>
-                </div>
-                <div class="row g-2">
-                  <div class="col-12"><label class="form-label">Picks (Phase 2)</label></div>
-                  <div class="col-6"><input type="text" id="redPick4" class="form-control input-sm" placeholder="Pick 4"></div>
-                  <div class="col-6"><input type="text" id="redPick5" class="form-control input-sm" placeholder="Pick 5"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="d-flex justify-content-between mt-4">
-            <button onclick="nextStep(1)" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</button>
-            <button onclick="nextStep(3)" class="btn btn-primary">Next: Player Stats <i class="bi bi-arrow-right"></i></button>
-          </div>
-        </div>
-        
-        <!-- Step 3: Player Stats -->
-        <div id="step3" class="d-none">
-          <div class="row g-4">
-            <!-- Blue Team Players -->
-            <div class="col-md-6">
-              <div class="team-header team-blue mb-3"><i class="bi bi-people-fill me-2"></i>Blue Side Players</div>
-              <div class="accordion" id="bluePlayersAccordion"></div>
-            </div>
-            <!-- Red Team Players -->
-            <div class="col-md-6">
-              <div class="team-header team-red mb-3"><i class="bi bi-people-fill me-2"></i>Red Side Players</div>
-              <div class="accordion" id="redPlayersAccordion"></div>
-            </div>
-          </div>
-          <div class="d-flex justify-content-between mt-4">
-            <button onclick="nextStep(2)" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</button>
-          </div>
-        </div>
-        
-        <!-- Floating Save Button -->
-        <button id="saveBtn" onclick="saveMatch()" class="btn btn-success floating-save d-none">
-          <i class="bi bi-check-lg me-2"></i>Save Match
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // State
-    let currentUser = { username: '', role: '' };
-    let currentStep = 1;
-    const roles = ['gold', 'jungler', 'exp', 'mid', 'roamer'];
-    const roleLabels = { gold: 'Gold Laner', jungler: 'Jungler', exp: 'EXP Laner', mid: 'Mid Laner', roamer: 'Roamer' };
-
-    // Login
-    function handleLogin() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      if (!username || !password) {
-        showError('Please enter username and password');
-        return;
-      }
-      
-      document.getElementById('loginBtnText').classList.add('d-none');
-      document.getElementById('loginSpinner').classList.remove('d-none');
-      
-      google.script.run
-        .withSuccessHandler(onLoginSuccess)
-        .withFailureHandler(onLoginError)
-        .validateLogin(username, password);
-    }
-
-    function onLoginSuccess(result) {
-      document.getElementById('loginBtnText').classList.remove('d-none');
-      document.getElementById('loginSpinner').classList.add('d-none');
-      
-      if (result.success) {
-        currentUser = { username: result.username, role: result.role };
-        document.getElementById('loginScreen').classList.add('d-none');
-        
-        if (result.role === 'Admin') {
-          document.getElementById('adminUsername').textContent = result.username;
-          document.getElementById('adminDashboard').classList.remove('d-none');
-        } else {
-          showEncoderDashboard();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCC Data Entry App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-input: #21262d;
+            --border-color: #30363d;
+            --accent-blue: #58a6ff;
+            --accent-red: #f85149;
+            --accent-green: #3fb950;
+            --accent-gold: #d29922;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
         }
-      } else {
-        showError(result.message);
-      }
-    }
 
-    function onLoginError(error) {
-      document.getElementById('loginBtnText').classList.remove('d-none');
-      document.getElementById('loginSpinner').classList.add('d-none');
-      showError('Login failed: ' + error.message);
-    }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
 
-    function showError(msg) {
-      const el = document.getElementById('loginError');
-      el.textContent = msg;
-      el.classList.remove('d-none');
-    }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
 
-    function handleUnlock() {
-      google.script.run
-        .withSuccessHandler(() => google.script.host.close())
-        .unlockSheets();
-    }
+        .form-control,
+        .form-select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
 
-    function showEncoderDashboard() {
-      document.getElementById('loginScreen').classList.add('d-none');
-      document.getElementById('adminDashboard').classList.add('d-none');
-      document.getElementById('encoderDashboard').classList.remove('d-none');
-      document.getElementById('encoderUsername').textContent = currentUser.username;
-      
-      initPlayerAccordions();
-      loadAnalytics();
-      loadNextRowNumber();
-    }
+        .form-control:focus,
+        .form-select:focus {
+            background: var(--bg-input);
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
 
-    // Analytics
-    function loadAnalytics() {
-      google.script.run
-        .withSuccessHandler(data => {
-          document.getElementById('statTotal').textContent = data.totalGames || 0;
-          document.getElementById('statBlue').textContent = (data.blueWinRate || 0) + '%';
-          document.getElementById('statRed').textContent = (data.redWinRate || 0) + '%';
-          document.getElementById('statDuration').textContent = data.avgDuration || '0:00';
-        })
-        .getSummaryData();
-      
-      google.script.run
-        .withSuccessHandler(renderRecentMatches)
-        .getLastMatches(5);
-    }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), #1f6feb);
+            border: none;
+            font-weight: 600;
+        }
 
-    function renderRecentMatches(matches) {
-      const tbody = document.getElementById('recentMatchesBody');
-      if (!matches || matches.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">No matches yet</td></tr>';
-        return;
-      }
-      
-      tbody.innerHTML = matches.map(m => `
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-red), #da3633);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #238636);
+            border: none;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card), #1c2128);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-card h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .stat-card p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .nav-tabs {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-secondary);
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--accent-blue);
+            background: transparent;
+            border-bottom: 2px solid var(--accent-blue);
+        }
+
+        .team-header {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .team-blue {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.2), rgba(88, 166, 255, 0.1));
+            color: var(--accent-blue);
+        }
+
+        .team-red {
+            background: linear-gradient(135deg, rgba(248, 81, 73, 0.2), rgba(248, 81, 73, 0.1));
+            color: var(--accent-red);
+        }
+
+        .accordion-button {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background: var(--bg-card);
+            color: var(--accent-blue);
+        }
+
+        .accordion-button::after {
+            filter: invert(1);
+        }
+
+        .accordion-body {
+            background: var(--bg-card);
+        }
+
+        .floating-save {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(63, 185, 80, 0.4);
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-gold));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--accent-blue);
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: var(--accent-green);
+        }
+
+        .form-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .table {
+            color: var(--text-primary);
+        }
+
+        .table thead th {
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .table tbody td {
+            border-color: var(--border-color);
+        }
+
+        .input-sm {
+            padding: 0.35rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .winner-blue {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .winner-red {
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="card login-card">
+            <div class="logo-text">MCC Data</div>
+            <p class="text-center text-secondary mb-4">Match Data Entry System</p>
+            <div id="loginError" class="alert alert-danger d-none"></div>
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Enter username">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Enter password">
+            </div>
+            <button onclick="handleLogin()" class="btn btn-primary w-100 py-2">
+                <span id="loginBtnText">Sign In</span>
+                <span id="loginSpinner" class="spinner-border d-none"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="container py-5 d-none">
+        <div class="text-center mb-5">
+            <h1 class="logo-text">Admin Dashboard</h1>
+            <p class="text-secondary">Welcome, <span id="adminUsername"></span></p>
+        </div>
+        <div class="row justify-content-center g-4">
+            <div class="col-md-4">
+                <div class="card p-4 text-center">
+                    <i class="bi bi-unlock-fill fs-1 text-warning mb-3"></i>
+                    <h5>Unlock Sheets</h5>
+                    <p class="text-secondary small">Show hidden backend sheets</p>
+                    <button onclick="handleUnlock()" class="btn btn-warning w-100">Unlock</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 text-center">
+                    <i class="bi bi-grid-fill fs-1 text-primary mb-3"></i>
+                    <h5>Launch App</h5>
+                    <p class="text-secondary small">Open data entry interface</p>
+                    <button onclick="showEncoderDashboard()" class="btn btn-primary w-100">Launch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Encoder Dashboard -->
+    <div id="encoderDashboard" class="container-fluid py-4 d-none">
+        <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+            <h4 class="logo-text mb-0">MCC Data Entry</h4>
+            <span class="text-secondary">Logged in as: <strong id="encoderUsername"></strong></span>
+        </div>
+
+        <ul class="nav nav-tabs px-3" id="mainTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#analyticsTab">
+                    <i class="bi bi-graph-up me-2"></i>Analytics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#entryTab">
+                    <i class="bi bi-pencil-square me-2"></i>Data Entry
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content p-3">
+            <!-- Analytics Tab -->
+            <div class="tab-pane fade show active" id="analyticsTab">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h2 id="statTotal">0</h2>
+                            <p>Total Games</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h2 id="statBlue" class="text-primary">0%</h2>
+                            <p>Blue Side Win Rate</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h2 id="statRed" class="text-danger">0%</h2>
+                            <p>Red Side Win Rate</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h2 id="statDuration">0:00</h2>
+                            <p>Avg Duration</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-4">
+                    <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Matches</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Stage</th>
+                                    <th>Blue Team</th>
+                                    <th>Red Team</th>
+                                    <th>Duration</th>
+                                    <th>Winner</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentMatchesBody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-secondary">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Entry Tab -->
+            <div class="tab-pane fade" id="entryTab">
+                <div class="step-indicator">
+                    <div class="step-dot active" id="step1Dot"></div>
+                    <div class="step-dot" id="step2Dot"></div>
+                    <div class="step-dot" id="step3Dot"></div>
+                </div>
+
+                <!-- Step 1: Match Info -->
+                <div id="step1" class="card p-4 mb-4">
+                    <h5 class="mb-4"><i class="bi bi-info-circle me-2"></i>Match Information</h5>
+                    <div id="step1Error" class="alert alert-danger d-none mb-3"></div>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Stage</label>
+                            <input type="text" id="matchStage" class="form-control" placeholder="e.g. UR Min DE 1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Match</label>
+                            <input type="text" id="matchMatch" class="form-control" placeholder="1, 2, 3...">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Battle ID</label>
+                            <input type="text" id="battleId" class="form-control" placeholder="Battle ID">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Duration</label>
+                            <input type="text" id="gameDuration" class="form-control" placeholder="MM:SS">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Winner</label>
+                            <select id="winner" class="form-select">
+                                <option value="">Select</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-end mt-4">
+                        <button id="step1NextBtn" onclick="goToStep2()" class="btn btn-primary">Next: Team Data <i
+                                class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Team Draft -->
+                <div id="step2" class="d-none">
+                    <div class="row g-4">
+                        <!-- Blue Team -->
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <div class="team-header team-blue mb-3"><i class="bi bi-shield-fill me-2"></i>Blue Side
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Team Name</label>
+                                    <input type="text" id="blueTeamName" class="form-control">
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-12"><label class="form-label">Bans (Phase 1)</label></div>
+                                    <div class="col-4"><input type="text" id="blueBan1" class="form-control input-sm"
+                                            placeholder="Ban 1"></div>
+                                    <div class="col-4"><input type="text" id="blueBan2" class="form-control input-sm"
+                                            placeholder="Ban 2"></div>
+                                    <div class="col-4"><input type="text" id="blueBan3" class="form-control input-sm"
+                                            placeholder="Ban 3"></div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-12"><label class="form-label">Picks (Phase 1)</label></div>
+                                    <div class="col-4"><input type="text" id="bluePick1" class="form-control input-sm"
+                                            placeholder="Pick 1"></div>
+                                    <div class="col-4"><input type="text" id="bluePick2" class="form-control input-sm"
+                                            placeholder="Pick 2"></div>
+                                    <div class="col-4"><input type="text" id="bluePick3" class="form-control input-sm"
+                                            placeholder="Pick 3"></div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-12"><label class="form-label">Bans (Phase 2)</label></div>
+                                    <div class="col-6"><input type="text" id="blueBan4" class="form-control input-sm"
+                                            placeholder="Ban 4"></div>
+                                    <div class="col-6"><input type="text" id="blueBan5" class="form-control input-sm"
+                                            placeholder="Ban 5"></div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-12"><label class="form-label">Picks (Phase 2)</label></div>
+                                    <div class="col-6"><input type="text" id="bluePick4" class="form-control input-sm"
+                                            placeholder="Pick 4"></div>
+                                    <div class="col-6"><input type="text" id="bluePick5" class="form-control input-sm"
+                                            placeholder="Pick 5"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Red Team -->
+                        <div class="col-md-6">
+                            <div class="card p-4">
+                                <div class="team-header team-red mb-3"><i class="bi bi-shield-fill me-2"></i>Red Side
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Team Name</label>
+                                    <input type="text" id="redTeamName" class="form-control">
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-12"><label class="form-label">Bans (Phase 1)</label></div>
+                                    <div class="col-4"><input type="text" id="redBan1" class="form-control input-sm"
+                                            placeholder="Ban 1"></div>
+                                    <div class="col-4"><input type="text" id="redBan2" class="form-control input-sm"
+                                            placeholder="Ban 2"></div>
+                                    <div class="col-4"><input type="text" id="redBan3" class="form-control input-sm"
+                                            placeholder="Ban 3"></div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-12"><label class="form-label">Picks (Phase 1)</label></div>
+                                    <div class="col-4"><input type="text" id="redPick1" class="form-control input-sm"
+                                            placeholder="Pick 1"></div>
+                                    <div class="col-4"><input type="text" id="redPick2" class="form-control input-sm"
+                                            placeholder="Pick 2"></div>
+                                    <div class="col-4"><input type="text" id="redPick3" class="form-control input-sm"
+                                            placeholder="Pick 3"></div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-12"><label class="form-label">Bans (Phase 2)</label></div>
+                                    <div class="col-6"><input type="text" id="redBan4" class="form-control input-sm"
+                                            placeholder="Ban 4"></div>
+                                    <div class="col-6"><input type="text" id="redBan5" class="form-control input-sm"
+                                            placeholder="Ban 5"></div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-12"><label class="form-label">Picks (Phase 2)</label></div>
+                                    <div class="col-6"><input type="text" id="redPick4" class="form-control input-sm"
+                                            placeholder="Pick 4"></div>
+                                    <div class="col-6"><input type="text" id="redPick5" class="form-control input-sm"
+                                            placeholder="Pick 5"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button onclick="nextStep(1)" class="btn btn-secondary"><i class="bi bi-arrow-left"></i>
+                            Back</button>
+                        <button onclick="nextStep(3)" class="btn btn-primary">Next: Player Stats <i
+                                class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Player Stats -->
+                <div id="step3" class="d-none">
+                    <div class="row g-4">
+                        <!-- Blue Team Players -->
+                        <div class="col-md-6">
+                            <div class="team-header team-blue mb-3"><i class="bi bi-people-fill me-2"></i>Blue Side
+                                Players</div>
+                            <div class="accordion" id="bluePlayersAccordion"></div>
+                        </div>
+                        <!-- Red Team Players -->
+                        <div class="col-md-6">
+                            <div class="team-header team-red mb-3"><i class="bi bi-people-fill me-2"></i>Red Side
+                                Players</div>
+                            <div class="accordion" id="redPlayersAccordion"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button onclick="nextStep(2)" class="btn btn-secondary"><i class="bi bi-arrow-left"></i>
+                            Back</button>
+                    </div>
+                </div>
+
+                <!-- Floating Save Button -->
+                <button id="saveBtn" onclick="saveMatch()" class="btn btn-success floating-save d-none">
+                    <i class="bi bi-check-lg me-2"></i>Save Match
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // State
+        let currentUser = { username: '', role: '' };
+        let currentStep = 1;
+        const roles = ['gold', 'jungler', 'exp', 'mid', 'roamer'];
+        const roleLabels = { gold: 'Gold Laner', jungler: 'Jungler', exp: 'EXP Laner', mid: 'Mid Laner', roamer: 'Roamer' };
+
+        // Login
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showError('Please enter username and password');
+                return;
+            }
+
+            document.getElementById('loginBtnText').classList.add('d-none');
+            document.getElementById('loginSpinner').classList.remove('d-none');
+
+            google.script.run
+                .withSuccessHandler(onLoginSuccess)
+                .withFailureHandler(onLoginError)
+                .validateLogin(username, password);
+        }
+
+        function onLoginSuccess(result) {
+            document.getElementById('loginBtnText').classList.remove('d-none');
+            document.getElementById('loginSpinner').classList.add('d-none');
+
+            if (result.success) {
+                currentUser = { username: result.username, role: result.role };
+                document.getElementById('loginScreen').classList.add('d-none');
+
+                if (result.role === 'Admin') {
+                    document.getElementById('adminUsername').textContent = result.username;
+                    document.getElementById('adminDashboard').classList.remove('d-none');
+                } else {
+                    showEncoderDashboard();
+                }
+            } else {
+                showError(result.message);
+            }
+        }
+
+        function onLoginError(error) {
+            document.getElementById('loginBtnText').classList.remove('d-none');
+            document.getElementById('loginSpinner').classList.add('d-none');
+            showError('Login failed: ' + error.message);
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('loginError');
+            el.textContent = msg;
+            el.classList.remove('d-none');
+        }
+
+        function handleUnlock() {
+            google.script.run
+                .withSuccessHandler(() => google.script.host.close())
+                .unlockSheets();
+        }
+
+        function showEncoderDashboard() {
+            document.getElementById('loginScreen').classList.add('d-none');
+            document.getElementById('adminDashboard').classList.add('d-none');
+            document.getElementById('encoderDashboard').classList.remove('d-none');
+            document.getElementById('encoderUsername').textContent = currentUser.username;
+
+            initPlayerAccordions();
+            loadAnalytics();
+            loadNextRowNumber();
+        }
+
+        // Analytics
+        function loadAnalytics() {
+            google.script.run
+                .withSuccessHandler(data => {
+                    document.getElementById('statTotal').textContent = data.totalGames || 0;
+                    document.getElementById('statBlue').textContent = (data.blueWinRate || 0) + '%';
+                    document.getElementById('statRed').textContent = (data.redWinRate || 0) + '%';
+                    document.getElementById('statDuration').textContent = data.avgDuration || '0:00';
+                })
+                .getSummaryData();
+
+            google.script.run
+                .withSuccessHandler(renderRecentMatches)
+                .getLastMatches(5);
+        }
+
+        function renderRecentMatches(matches) {
+            const tbody = document.getElementById('recentMatchesBody');
+            if (!matches || matches.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">No matches yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = matches.map(m => `
         <tr>
           <td>${m.rowNum || ''}</td>
           <td>${m.stage || ''}</td>
@@ -520,43 +651,72 @@
           <td class="${m.winner === 'Blue' ? 'winner-blue' : 'winner-red'}">${m.winner || ''}</td>
         </tr>
       `).join('');
-    }
+        }
 
-    function loadNextRowNumber() {
-      google.script.run
-        .withSuccessHandler(num => { document.getElementById('matchNum').value = num; })
-        .getNextRowNumber();
-    }
+        function loadNextRowNumber() {
+            // Row number is now auto-determined on save, no need to pre-load
+        }
 
-    // Steps
-    function nextStep(step) {
-      document.getElementById('step1').classList.add('d-none');
-      document.getElementById('step2').classList.add('d-none');
-      document.getElementById('step3').classList.add('d-none');
-      document.getElementById('step' + step).classList.remove('d-none');
-      
-      document.querySelectorAll('.step-dot').forEach((dot, i) => {
-        dot.classList.remove('active', 'completed');
-        if (i + 1 < step) dot.classList.add('completed');
-        if (i + 1 === step) dot.classList.add('active');
-      });
-      
-      currentStep = step;
-      document.getElementById('saveBtn').classList.toggle('d-none', step !== 3);
-    }
+        // Go to Step 2 with Battle ID validation
+        function goToStep2() {
+            const battleId = document.getElementById('battleId').value.trim();
+            const errorEl = document.getElementById('step1Error');
+            const btn = document.getElementById('step1NextBtn');
 
-    // Player Accordions
-    function initPlayerAccordions() {
-      const blueContainer = document.getElementById('bluePlayersAccordion');
-      const redContainer = document.getElementById('redPlayersAccordion');
-      
-      blueContainer.innerHTML = roles.map((role, i) => createPlayerAccordion('blue', role, i === 0)).join('');
-      redContainer.innerHTML = roles.map((role, i) => createPlayerAccordion('red', role, i === 0)).join('');
-    }
+            errorEl.classList.add('d-none');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border"></span> Checking...';
 
-    function createPlayerAccordion(team, role, expanded) {
-      const prefix = team + '_' + role;
-      return `
+            google.script.run
+                .withSuccessHandler(result => {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Next: Team Data <i class="bi bi-arrow-right"></i>';
+
+                    if (result.exists) {
+                        errorEl.textContent = result.message;
+                        errorEl.classList.remove('d-none');
+                    } else {
+                        nextStep(2);
+                    }
+                })
+                .withFailureHandler(err => {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Next: Team Data <i class="bi bi-arrow-right"></i>';
+                    // On error, allow proceeding
+                    nextStep(2);
+                })
+                .checkBattleIdExists(battleId);
+        }
+
+        // Steps
+        function nextStep(step) {
+            document.getElementById('step1').classList.add('d-none');
+            document.getElementById('step2').classList.add('d-none');
+            document.getElementById('step3').classList.add('d-none');
+            document.getElementById('step' + step).classList.remove('d-none');
+
+            document.querySelectorAll('.step-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'completed');
+                if (i + 1 < step) dot.classList.add('completed');
+                if (i + 1 === step) dot.classList.add('active');
+            });
+
+            currentStep = step;
+            document.getElementById('saveBtn').classList.toggle('d-none', step !== 3);
+        }
+
+        // Player Accordions
+        function initPlayerAccordions() {
+            const blueContainer = document.getElementById('bluePlayersAccordion');
+            const redContainer = document.getElementById('redPlayersAccordion');
+
+            blueContainer.innerHTML = roles.map((role, i) => createPlayerAccordion('blue', role, i === 0)).join('');
+            redContainer.innerHTML = roles.map((role, i) => createPlayerAccordion('red', role, i === 0)).join('');
+        }
+
+        function createPlayerAccordion(team, role, expanded) {
+            const prefix = team + '_' + role;
+            return `
         <div class="accordion-item border-0 mb-2">
           <h2 class="accordion-header">
             <button class="accordion-button ${expanded ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${prefix}">
@@ -607,106 +767,107 @@
           </div>
         </div>
       `;
-    }
-
-    // Save Match
-    function saveMatch() {
-      const formData = collectFormData();
-      
-      document.getElementById('saveBtn').disabled = true;
-      document.getElementById('saveBtn').innerHTML = '<span class="spinner-border"></span> Saving...';
-      
-      google.script.run
-        .withSuccessHandler(result => {
-          document.getElementById('saveBtn').disabled = false;
-          document.getElementById('saveBtn').innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Match';
-          
-          if (result.success) {
-            alert('Match saved successfully!');
-            resetForm();
-            loadAnalytics();
-            loadNextRowNumber();
-            nextStep(1);
-          } else {
-            alert('Error: ' + result.message);
-          }
-        })
-        .withFailureHandler(err => {
-          document.getElementById('saveBtn').disabled = false;
-          document.getElementById('saveBtn').innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Match';
-          alert('Error saving match: ' + err.message);
-        })
-        .processForm(formData, currentUser.username);
-    }
-
-    function collectFormData() {
-      const getVal = id => document.getElementById(id)?.value || '';
-      const getNum = id => parseInt(document.getElementById(id)?.value) || '';
-      
-      const getPlayerData = (team, role) => ({
-        name: getVal(team + '_' + role + '_name'),
-        hero: getVal(team + '_' + role + '_hero'),
-        kills: getNum(team + '_' + role + '_kills'),
-        deaths: getNum(team + '_' + role + '_deaths'),
-        assists: getNum(team + '_' + role + '_assists'),
-        gold: getNum(team + '_' + role + '_gold'),
-        damage: getNum(team + '_' + role + '_damage'),
-        turret: getNum(team + '_' + role + '_turret'),
-        dmgTaken: getNum(team + '_' + role + '_dmgTaken')
-      });
-      
-      return {
-        matchInfo: {
-          rowNum: getNum('matchNum'),
-          stage: getVal('matchStage'),
-          match: getVal('matchMatch'),
-          battleId: getVal('battleId'),
-          duration: getVal('gameDuration'),
-          winner: getVal('winner')
-        },
-        blueTeam: {
-          teamName: getVal('blueTeamName'),
-          ban1: getVal('blueBan1'), ban2: getVal('blueBan2'), ban3: getVal('blueBan3'),
-          pick1: getVal('bluePick1'), pick2: getVal('bluePick2'), pick3: getVal('bluePick3'),
-          ban4: getVal('blueBan4'), ban5: getVal('blueBan5'),
-          pick4: getVal('bluePick4'), pick5: getVal('bluePick5'),
-          players: {
-            gold: getPlayerData('blue', 'gold'),
-            jungler: getPlayerData('blue', 'jungler'),
-            exp: getPlayerData('blue', 'exp'),
-            mid: getPlayerData('blue', 'mid'),
-            roamer: getPlayerData('blue', 'roamer')
-          }
-        },
-        redTeam: {
-          teamName: getVal('redTeamName'),
-          ban1: getVal('redBan1'), ban2: getVal('redBan2'), ban3: getVal('redBan3'),
-          pick1: getVal('redPick1'), pick2: getVal('redPick2'), pick3: getVal('redPick3'),
-          ban4: getVal('redBan4'), ban5: getVal('redBan5'),
-          pick4: getVal('redPick4'), pick5: getVal('redPick5'),
-          players: {
-            gold: getPlayerData('red', 'gold'),
-            jungler: getPlayerData('red', 'jungler'),
-            exp: getPlayerData('red', 'exp'),
-            mid: getPlayerData('red', 'mid'),
-            roamer: getPlayerData('red', 'roamer')
-          }
         }
-      };
-    }
 
-    function resetForm() {
-      document.querySelectorAll('#entryTab input, #entryTab select').forEach(el => {
-        if (el.type === 'number') el.value = '';
-        else if (el.tagName === 'SELECT') el.selectedIndex = 0;
-        else el.value = '';
-      });
-    }
+        // Save Match
+        function saveMatch() {
+            const formData = collectFormData();
 
-    // Enter key login
-    document.getElementById('password').addEventListener('keypress', e => {
-      if (e.key === 'Enter') handleLogin();
-    });
-  </script>
+            document.getElementById('saveBtn').disabled = true;
+            document.getElementById('saveBtn').innerHTML = '<span class="spinner-border"></span> Saving...';
+
+            google.script.run
+                .withSuccessHandler(result => {
+                    document.getElementById('saveBtn').disabled = false;
+                    document.getElementById('saveBtn').innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Match';
+
+                    if (result.success) {
+                        alert('Match saved successfully!');
+                        resetForm();
+                        loadAnalytics();
+                        loadNextRowNumber();
+                        nextStep(1);
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                })
+                .withFailureHandler(err => {
+                    document.getElementById('saveBtn').disabled = false;
+                    document.getElementById('saveBtn').innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Match';
+                    alert('Error saving match: ' + err.message);
+                })
+                .processForm(formData, currentUser.username);
+        }
+
+        function collectFormData() {
+            const getVal = id => document.getElementById(id)?.value || '';
+            const getNum = id => parseInt(document.getElementById(id)?.value) || '';
+
+            const getPlayerData = (team, role) => ({
+                name: getVal(team + '_' + role + '_name'),
+                hero: getVal(team + '_' + role + '_hero'),
+                kills: getNum(team + '_' + role + '_kills'),
+                deaths: getNum(team + '_' + role + '_deaths'),
+                assists: getNum(team + '_' + role + '_assists'),
+                gold: getNum(team + '_' + role + '_gold'),
+                damage: getNum(team + '_' + role + '_damage'),
+                turret: getNum(team + '_' + role + '_turret'),
+                dmgTaken: getNum(team + '_' + role + '_dmgTaken')
+            });
+
+            return {
+                matchInfo: {
+                    rowNum: getNum('matchNum'),
+                    stage: getVal('matchStage'),
+                    match: getVal('matchMatch'),
+                    battleId: getVal('battleId'),
+                    duration: getVal('gameDuration'),
+                    winner: getVal('winner')
+                },
+                blueTeam: {
+                    teamName: getVal('blueTeamName'),
+                    ban1: getVal('blueBan1'), ban2: getVal('blueBan2'), ban3: getVal('blueBan3'),
+                    pick1: getVal('bluePick1'), pick2: getVal('bluePick2'), pick3: getVal('bluePick3'),
+                    ban4: getVal('blueBan4'), ban5: getVal('blueBan5'),
+                    pick4: getVal('bluePick4'), pick5: getVal('bluePick5'),
+                    players: {
+                        gold: getPlayerData('blue', 'gold'),
+                        jungler: getPlayerData('blue', 'jungler'),
+                        exp: getPlayerData('blue', 'exp'),
+                        mid: getPlayerData('blue', 'mid'),
+                        roamer: getPlayerData('blue', 'roamer')
+                    }
+                },
+                redTeam: {
+                    teamName: getVal('redTeamName'),
+                    ban1: getVal('redBan1'), ban2: getVal('redBan2'), ban3: getVal('redBan3'),
+                    pick1: getVal('redPick1'), pick2: getVal('redPick2'), pick3: getVal('redPick3'),
+                    ban4: getVal('redBan4'), ban5: getVal('redBan5'),
+                    pick4: getVal('redPick4'), pick5: getVal('redPick5'),
+                    players: {
+                        gold: getPlayerData('red', 'gold'),
+                        jungler: getPlayerData('red', 'jungler'),
+                        exp: getPlayerData('red', 'exp'),
+                        mid: getPlayerData('red', 'mid'),
+                        roamer: getPlayerData('red', 'roamer')
+                    }
+                }
+            };
+        }
+
+        function resetForm() {
+            document.querySelectorAll('#entryTab input, #entryTab select').forEach(el => {
+                if (el.type === 'number') el.value = '';
+                else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                else el.value = '';
+            });
+        }
+
+        // Enter key login
+        document.getElementById('password').addEventListener('keypress', e => {
+            if (e.key === 'Enter') handleLogin();
+        });
+    </script>
 </body>
+
 </html>

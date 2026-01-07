@@ -2,6 +2,15 @@
 
 All notable changes to the MOBA Esports Data Entry App will be documented in this file.
 
+## [1.1.0] - 2026-01-07
+
+### Changed
+- **Sidebar mode**: Changed from modal to sidebar (no X close button) to prevent encoders from exiting
+- **Auto row number**: Row # is now auto-determined on save, removed manual input
+- **Battle ID validation**: Checks for duplicate Battle IDs before proceeding to step 2
+
+---
+
 ## [1.0.0] - 2026-01-07
 
 ### Added
