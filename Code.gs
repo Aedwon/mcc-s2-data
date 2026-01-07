@@ -31,13 +31,16 @@ function onOpen() {
 }
 
 /**
- * Shows the full-screen sidebar (no X button to close)
+ * Shows the full-screen modal dialog
+ * Note: Modal has X button but auto-launches on open, so closing just shows the sheet temporarily
  */
 function showLoginModal() {
   const html = HtmlService.createHtmlOutputFromFile('Index')
+    .setWidth(1400)
+    .setHeight(900)
     .setTitle('MCC Data Entry App');
   
-  SpreadsheetApp.getUi().showSidebar(html);
+  SpreadsheetApp.getUi().showModalDialog(html, 'MCC Data Entry App');
 }
 
 // ============ AUTHENTICATION ============
