@@ -165,10 +165,38 @@ function unlockSheets() {
 // ============ DATA FUNCTIONS ============
 
 /**
+ * Gets unique stages from the database for filtering
+ * @returns {Array} Array of stage names sorted alphabetically
+ */
+function getStages() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
+    
+    if (!dbSheet || dbSheet.getLastRow() <= 1) return [];
+    
+    const data = dbSheet.getRange(2, 2, dbSheet.getLastRow() - 1, 1).getValues();
+    const stages = new Set();
+    
+    data.forEach(row => {
+      if (row[0] && row[0].toString().trim()) {
+        stages.add(row[0].toString().trim());
+      }
+    });
+    
+    return Array.from(stages).sort();
+  } catch (error) {
+    console.error('getStages error:', error);
+    return [];
+  }
+}
+
+/**
  * Gets summary statistics for the analytics dashboard
+ * @param {string} stageFilter Optional stage to filter by (empty or 'All' = no filter)
  * @returns {Object} Summary data
  */
-function getSummaryData() {
+function getSummaryData(stageFilter) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
@@ -190,9 +218,14 @@ function getSummaryData() {
     let redWins = 0;
     let totalDurationSeconds = 0;
     
-    // Winner is in column 118 (index 117)
-    // Duration is in column 117 (index 116)
+    const filterStage = stageFilter && stageFilter !== 'All' ? stageFilter : null;
+    
     for (let i = 1; i < data.length; i++) {
+      const stage = data[i][1];  // Column 2 - Stage
+      
+      // Apply stage filter if specified
+      if (filterStage && stage !== filterStage) continue;
+      
       const winner = data[i][117]; // Column 118 - Winner
       const duration = data[i][116]; // Column 117 - Game Duration
       
@@ -367,9 +400,10 @@ const BAN_COLUMNS = {
 
 /**
  * Gets player statistics: KDA, winrate, GPM
+ * @param {string} stageFilter Optional stage to filter by
  * @returns {Array} Array of {player, games, avgKDA, winRate, avgGPM}
  */
-function getPlayerStats() {
+function getPlayerStats(stageFilter) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
@@ -378,8 +412,12 @@ function getPlayerStats() {
     
     const data = dbSheet.getDataRange().getValues();
     const playerMap = {};
+    const filterStage = stageFilter && stageFilter !== 'All' ? stageFilter : null;
     
     for (let i = 1; i < data.length; i++) {
+      const stage = data[i][1];
+      if (filterStage && stage !== filterStage) continue;
+
       const winner = data[i][117] ? data[i][117].toString().toLowerCase() : '';
       const duration = parseDuration(data[i][116]);
       
@@ -430,9 +468,10 @@ function getPlayerStats() {
 
 /**
  * Gets hero statistics: pick/ban rates, winrates, KDA
+ * @param {string} stageFilter Optional stage to filter by
  * @returns {Object} {heroes: Array, mostPicked: Array, mostBanned: Array}
  */
-function getHeroStats() {
+function getHeroStats(stageFilter) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
@@ -442,9 +481,14 @@ function getHeroStats() {
     const data = dbSheet.getDataRange().getValues();
     const heroMap = {};
     const banCount = {};
-    const totalGames = data.length - 1;
+    let totalGames = 0;
+    const filterStage = stageFilter && stageFilter !== 'All' ? stageFilter : null;
     
     for (let i = 1; i < data.length; i++) {
+      const stage = data[i][1];
+      if (filterStage && stage !== filterStage) continue;
+      
+      totalGames++;
       const winner = data[i][117] ? data[i][117].toString().toLowerCase() : '';
       
       // Count bans
@@ -510,9 +554,10 @@ function getHeroStats() {
 
 /**
  * Gets draft analytics: first/second pick winrates
+ * @param {string} stageFilter Optional stage to filter by
  * @returns {Object} {firstPickWinRate, secondPickWinRate, totalGames}
  */
-function getDraftAnalytics() {
+function getDraftAnalytics(stageFilter) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
@@ -523,8 +568,12 @@ function getDraftAnalytics() {
     
     const data = dbSheet.getDataRange().getValues();
     let totalGames = 0, blueWins = 0, redWins = 0;
+    const filterStage = stageFilter && stageFilter !== 'All' ? stageFilter : null;
     
     for (let i = 1; i < data.length; i++) {
+      const stage = data[i][1];
+      if (filterStage && stage !== filterStage) continue;
+
       const winner = data[i][117] ? data[i][117].toString().toLowerCase() : '';
       if (winner === 'blue' || winner === 'red') {
         totalGames++;

@@ -545,29 +545,39 @@
         <div class="tab-content p-3">
             <!-- Analytics Tab -->
             <div class="tab-pane fade show active" id="analyticsTab">
-                <!-- Analytics Sub-Navigation -->
-                <ul class="nav nav-pills mb-4" id="analyticsSubTabs">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-bs-toggle="pill" href="#overviewPane">
-                            <i class="bi bi-speedometer2 me-1"></i>Overview
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="pill" href="#playersPane">
-                            <i class="bi bi-people me-1"></i>Players
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="pill" href="#heroesPane">
-                            <i class="bi bi-shield me-1"></i>Heroes
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="pill" href="#draftPane">
-                            <i class="bi bi-diagram-3 me-1"></i>Draft
-                        </a>
-                    </li>
-                </ul>
+                <!-- Analytics Toolbar -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <ul class="nav nav-pills" id="analyticsSubTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="pill" href="#overviewPane">
+                                <i class="bi bi-speedometer2 me-1"></i>Overview
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#playersPane">
+                                <i class="bi bi-people me-1"></i>Players
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#heroesPane">
+                                <i class="bi bi-shield me-1"></i>Heroes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#draftPane">
+                                <i class="bi bi-diagram-3 me-1"></i>Draft
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center">
+                        <label class="me-2 text-secondary">Stage:</label>
+                        <select id="stageFilter" class="form-select form-select-sm w-auto"
+                            onchange="refreshAnalytics()">
+                            <option value="All">All Stages</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="tab-content">
                     <!-- Overview Pane -->
@@ -1156,6 +1166,40 @@
         let heroSortAsc = false;
 
         function loadAnalytics() {
+            loadStages(); // Load stages first, then refresh data
+        }
+
+        function loadStages() {
+            google.script.run
+                .withSuccessHandler(stages => {
+                    const select = document.getElementById('stageFilter');
+                    const currentValue = select.value;
+
+                    // Keep 'All Stages' option and append others
+                    select.innerHTML = '<option value="All">All Stages</option>';
+
+                    if (stages && stages.length > 0) {
+                        stages.forEach(stage => {
+                            const option = document.createElement('option');
+                            option.value = stage;
+                            option.textContent = stage;
+                            select.appendChild(option);
+                        });
+                    }
+
+                    // Restore selection if possible, otherwise default to All
+                    if (currentValue && Array.from(select.options).some(o => o.value === currentValue)) {
+                        select.value = currentValue;
+                    }
+
+                    refreshAnalytics();
+                })
+                .getStages();
+        }
+
+        function refreshAnalytics() {
+            const stageFilter = document.getElementById('stageFilter').value;
+
             // Load summary data
             google.script.run
                 .withSuccessHandler(data => {
@@ -1164,9 +1208,15 @@
                     document.getElementById('statRed').textContent = (data.redWinRate || 0) + '%';
                     document.getElementById('statDuration').textContent = data.avgDuration || '0:00';
                 })
-                .getSummaryData();
+                .getSummaryData(stageFilter);
 
-            // Load recent matches
+            // Load recent matches (always show all recent matches, or filter them? 
+            // Usually recent matches ignores filter or applies it. 
+            // For now let's keep recent matches as global recent, or update getLastMatches to filter too?
+            // User asked for "only certain entries are considered in calculations". 
+            // Recent matches list is not a calculation, but a list. 
+            // Let's leave recent matches as is for now unless asked, or just pass filter?)
+            // Actually, getLastMatches doesn't take filter yet. I'll leave it as global recent for context.
             google.script.run
                 .withSuccessHandler(renderRecentMatches)
                 .getLastMatches(5);
@@ -1177,7 +1227,7 @@
                     playerStatsData = data || [];
                     renderPlayerTable();
                 })
-                .getPlayerStats();
+                .getPlayerStats(stageFilter);
 
             // Load hero stats
             google.script.run
@@ -1186,7 +1236,7 @@
                     renderHeroTable();
                     renderMostPickedBanned(data);
                 })
-                .getHeroStats();
+                .getHeroStats(stageFilter);
 
             // Load draft analytics
             google.script.run
@@ -1196,7 +1246,7 @@
                     document.getElementById('firstPickGames').textContent = (data.blueWins || 0) + ' wins out of ' + (data.totalGames || 0);
                     document.getElementById('secondPickGames').textContent = (data.redWins || 0) + ' wins out of ' + (data.totalGames || 0);
                 })
-                .getDraftAnalytics();
+                .getDraftAnalytics(stageFilter);
         }
 
         function renderRecentMatches(matches) {
