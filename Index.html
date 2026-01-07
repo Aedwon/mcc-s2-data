@@ -494,35 +494,105 @@
                                 </div>
                                 <div class="row g-2 mb-3">
                                     <div class="col-12"><label class="form-label">Bans (Phase 1)</label></div>
-                                    <div class="col-4"><input type="text" id="blueBan1" class="form-control input-sm"
-                                            placeholder="Ban 1"></div>
-                                    <div class="col-4"><input type="text" id="blueBan2" class="form-control input-sm"
-                                            placeholder="Ban 2"></div>
-                                    <div class="col-4"><input type="text" id="blueBan3" class="form-control input-sm"
-                                            placeholder="Ban 3"></div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="blueBan1"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 1"
+                                                autocomplete="off" onfocus="showHeroDropdown('blueBan1')"
+                                                oninput="filterHeroes('blueBan1')"><img id="blueBan1_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="blueBan1_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="blueBan2"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 2"
+                                                autocomplete="off" onfocus="showHeroDropdown('blueBan2')"
+                                                oninput="filterHeroes('blueBan2')"><img id="blueBan2_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="blueBan2_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="blueBan3"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 3"
+                                                autocomplete="off" onfocus="showHeroDropdown('blueBan3')"
+                                                oninput="filterHeroes('blueBan3')"><img id="blueBan3_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="blueBan3_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row g-2 mb-3">
                                     <div class="col-12"><label class="form-label">Picks (Phase 1)</label></div>
-                                    <div class="col-4"><input type="text" id="bluePick1" class="form-control input-sm"
-                                            placeholder="Pick 1"></div>
-                                    <div class="col-4"><input type="text" id="bluePick2" class="form-control input-sm"
-                                            placeholder="Pick 2"></div>
-                                    <div class="col-4"><input type="text" id="bluePick3" class="form-control input-sm"
-                                            placeholder="Pick 3"></div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="bluePick1"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 1"
+                                                autocomplete="off" onfocus="showHeroDropdown('bluePick1')"
+                                                oninput="filterHeroes('bluePick1')"><img id="bluePick1_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="bluePick1_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="bluePick2"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 2"
+                                                autocomplete="off" onfocus="showHeroDropdown('bluePick2')"
+                                                oninput="filterHeroes('bluePick2')"><img id="bluePick2_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="bluePick2_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="bluePick3"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 3"
+                                                autocomplete="off" onfocus="showHeroDropdown('bluePick3')"
+                                                oninput="filterHeroes('bluePick3')"><img id="bluePick3_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="bluePick3_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row g-2 mb-3">
                                     <div class="col-12"><label class="form-label">Bans (Phase 2)</label></div>
-                                    <div class="col-6"><input type="text" id="blueBan4" class="form-control input-sm"
-                                            placeholder="Ban 4"></div>
-                                    <div class="col-6"><input type="text" id="blueBan5" class="form-control input-sm"
-                                            placeholder="Ban 5"></div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="blueBan4"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 4"
+                                                autocomplete="off" onfocus="showHeroDropdown('blueBan4')"
+                                                oninput="filterHeroes('blueBan4')"><img id="blueBan4_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="blueBan4_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="blueBan5"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 5"
+                                                autocomplete="off" onfocus="showHeroDropdown('blueBan5')"
+                                                oninput="filterHeroes('blueBan5')"><img id="blueBan5_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="blueBan5_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-12"><label class="form-label">Picks (Phase 2)</label></div>
-                                    <div class="col-6"><input type="text" id="bluePick4" class="form-control input-sm"
-                                            placeholder="Pick 4"></div>
-                                    <div class="col-6"><input type="text" id="bluePick5" class="form-control input-sm"
-                                            placeholder="Pick 5"></div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="bluePick4"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 4"
+                                                autocomplete="off" onfocus="showHeroDropdown('bluePick4')"
+                                                oninput="filterHeroes('bluePick4')"><img id="bluePick4_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="bluePick4_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="bluePick5"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 5"
+                                                autocomplete="off" onfocus="showHeroDropdown('bluePick5')"
+                                                oninput="filterHeroes('bluePick5')"><img id="bluePick5_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="bluePick5_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -537,35 +607,105 @@
                                 </div>
                                 <div class="row g-2 mb-3">
                                     <div class="col-12"><label class="form-label">Bans (Phase 1)</label></div>
-                                    <div class="col-4"><input type="text" id="redBan1" class="form-control input-sm"
-                                            placeholder="Ban 1"></div>
-                                    <div class="col-4"><input type="text" id="redBan2" class="form-control input-sm"
-                                            placeholder="Ban 2"></div>
-                                    <div class="col-4"><input type="text" id="redBan3" class="form-control input-sm"
-                                            placeholder="Ban 3"></div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="redBan1"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 1"
+                                                autocomplete="off" onfocus="showHeroDropdown('redBan1')"
+                                                oninput="filterHeroes('redBan1')"><img id="redBan1_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redBan1_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="redBan2"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 2"
+                                                autocomplete="off" onfocus="showHeroDropdown('redBan2')"
+                                                oninput="filterHeroes('redBan2')"><img id="redBan2_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redBan2_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="redBan3"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 3"
+                                                autocomplete="off" onfocus="showHeroDropdown('redBan3')"
+                                                oninput="filterHeroes('redBan3')"><img id="redBan3_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redBan3_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row g-2 mb-3">
                                     <div class="col-12"><label class="form-label">Picks (Phase 1)</label></div>
-                                    <div class="col-4"><input type="text" id="redPick1" class="form-control input-sm"
-                                            placeholder="Pick 1"></div>
-                                    <div class="col-4"><input type="text" id="redPick2" class="form-control input-sm"
-                                            placeholder="Pick 2"></div>
-                                    <div class="col-4"><input type="text" id="redPick3" class="form-control input-sm"
-                                            placeholder="Pick 3"></div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="redPick1"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 1"
+                                                autocomplete="off" onfocus="showHeroDropdown('redPick1')"
+                                                oninput="filterHeroes('redPick1')"><img id="redPick1_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redPick1_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="redPick2"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 2"
+                                                autocomplete="off" onfocus="showHeroDropdown('redPick2')"
+                                                oninput="filterHeroes('redPick2')"><img id="redPick2_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redPick2_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="hero-select-container"><input type="text" id="redPick3"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 3"
+                                                autocomplete="off" onfocus="showHeroDropdown('redPick3')"
+                                                oninput="filterHeroes('redPick3')"><img id="redPick3_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redPick3_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row g-2 mb-3">
                                     <div class="col-12"><label class="form-label">Bans (Phase 2)</label></div>
-                                    <div class="col-6"><input type="text" id="redBan4" class="form-control input-sm"
-                                            placeholder="Ban 4"></div>
-                                    <div class="col-6"><input type="text" id="redBan5" class="form-control input-sm"
-                                            placeholder="Ban 5"></div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="redBan4"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 4"
+                                                autocomplete="off" onfocus="showHeroDropdown('redBan4')"
+                                                oninput="filterHeroes('redBan4')"><img id="redBan4_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redBan4_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="redBan5"
+                                                class="form-control input-sm hero-search-input" placeholder="Ban 5"
+                                                autocomplete="off" onfocus="showHeroDropdown('redBan5')"
+                                                oninput="filterHeroes('redBan5')"><img id="redBan5_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redBan5_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-12"><label class="form-label">Picks (Phase 2)</label></div>
-                                    <div class="col-6"><input type="text" id="redPick4" class="form-control input-sm"
-                                            placeholder="Pick 4"></div>
-                                    <div class="col-6"><input type="text" id="redPick5" class="form-control input-sm"
-                                            placeholder="Pick 5"></div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="redPick4"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 4"
+                                                autocomplete="off" onfocus="showHeroDropdown('redPick4')"
+                                                oninput="filterHeroes('redPick4')"><img id="redPick4_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redPick4_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="hero-select-container"><input type="text" id="redPick5"
+                                                class="form-control input-sm hero-search-input" placeholder="Pick 5"
+                                                autocomplete="off" onfocus="showHeroDropdown('redPick5')"
+                                                oninput="filterHeroes('redPick5')"><img id="redPick5_icon"
+                                                class="hero-icon-preview d-none" src="" alt="">
+                                            <div id="redPick5_dropdown" class="hero-dropdown"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
