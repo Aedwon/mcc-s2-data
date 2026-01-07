@@ -827,10 +827,18 @@
 
         // Load heroes from sheet
         function loadHeroesList() {
+            console.log('Loading heroes list...');
             google.script.run
                 .withSuccessHandler(heroes => {
                     heroesList = heroes || [];
                     console.log('Loaded', heroesList.length, 'heroes');
+                    if (heroesList.length > 0) {
+                        console.log('First hero:', heroesList[0]);
+                    }
+                })
+                .withFailureHandler(err => {
+                    console.error('Failed to load heroes:', err);
+                    heroesList = [];
                 })
                 .getHeroesList();
         }
@@ -1003,6 +1011,12 @@
         function filterHeroes(inputId) {
             const input = document.getElementById(inputId);
             const dropdown = document.getElementById(inputId + '_dropdown');
+
+            if (heroesList.length === 0) {
+                dropdown.innerHTML = '<div class="text-warning p-2 small">Loading heroes...</div>';
+                return;
+            }
+
             const search = input.value.toLowerCase();
 
             const filtered = heroesList.filter(h =>

@@ -20,6 +20,7 @@ const CONFIG = {
 
 /**
  * Gets the list of heroes from the Heroes sheet
+ * Extracts icon URLs from IMAGE() formulas if present
  * @returns {Array} Array of {code, name, icon} objects, sorted alphabetically
  */
 function getHeroesList() {
@@ -27,21 +28,48 @@ function getHeroesList() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const heroSheet = ss.getSheetByName(CONFIG.SHEETS.HEROES);
     
-    if (!heroSheet || heroSheet.getLastRow() <= 1) {
+    if (!heroSheet) {
+      console.log('Heroes sheet not found');
       return [];
     }
     
-    const data = heroSheet.getRange(2, 1, heroSheet.getLastRow() - 1, 3).getValues();
+    const lastRow = heroSheet.getLastRow();
+    if (lastRow <= 1) {
+      console.log('Heroes sheet is empty');
+      return [];
+    }
     
-    const heroes = data
-      .filter(row => row[1]) // Filter out empty rows
-      .map(row => ({
-        code: row[0] || '',
-        name: row[1] || '',
-        icon: row[2] || '' // This will be the image URL or empty
-      }))
+    const range = heroSheet.getRange(2, 1, lastRow - 1, 3);
+    const values = range.getValues();
+    const formulas = range.getFormulas();
+    
+    const heroes = values
+      .map((row, i) => {
+        let iconUrl = '';
+        
+        // Check if column C has an IMAGE formula - extract URL from it
+        const formula = formulas[i][2];
+        if (formula && formula.toUpperCase().includes('IMAGE')) {
+          // Extract URL from =IMAGE("url") or =IMAGE(url)
+          const match = formula.match(/IMAGE\s*\(\s*["']?([^"')]+)["']?/i);
+          if (match) {
+            iconUrl = match[1];
+          }
+        } else if (row[2] && typeof row[2] === 'string' && row[2].startsWith('http')) {
+          // Direct URL in cell
+          iconUrl = row[2];
+        }
+        
+        return {
+          code: row[0] ? row[0].toString() : '',
+          name: row[1] ? row[1].toString() : '',
+          icon: iconUrl
+        };
+      })
+      .filter(hero => hero.name) // Filter out empty rows
       .sort((a, b) => a.name.localeCompare(b.name));
     
+    console.log('Loaded heroes:', heroes.length);
     return heroes;
   } catch (error) {
     console.error('getHeroesList error:', error);
