@@ -1,25 +1,59 @@
-# MCC Data Entry App
+# MCC Data Entry & Analytics Platform
 
-A Google Apps Script solution for MOBA esports match data entry with a secure, full-screen dashboard interface.
+A purpose built Google Apps Script application designed for high fidelity data entry and real time analytics of MOBA esports matches. This tool replaces manual spreadsheet entry with a robust, full screen web interface backed by a 118 column database schema.
 
-## Features
+## Key Features
 
-- **Login System**: Role-based access (Encoder vs Admin)
-- **Analytics Dashboard**: Total games, win rates, average game duration
-- **3-Step Data Entry Form**: 
-  - Match Info (Stage, Match #, Battle ID, Duration, Winner)
-  - Team Draft (Blue/Red Ban/Pick sequence)
-  - Player Stats (5 roles × 9 stats per team)
-- **118-Column Support**: Matches existing CSV data structure
-- **Bootstrap 5 Dark Theme**: Gaming/esports aesthetic
+### Advanced Data Entry
+*   **Three Step Wizard**: Logical flow separating Match Info, Draft Phase, and Team Performance stats to reduce cognitive load during entry.
+*   **Smart Autocomplete**: Dynamic player name suggestions derived from historical database entries to prevent duplicates and naming inconsistencies.
+*   **Draft Validation**: Real time checking of hero picks or bans prevents duplicate selections within a single match.
+*   **Battle ID Verification**: Automated pre check against the database prevents duplicate match submissions.
+
+### Comprehensive Analytics Dashboard
+*   **Real Time Aggregation**: Instant calculation of statistics across all recorded matches without manual formula maintenance.
+*   **Stage Filtering**: Ability to filter all analytics metrics by specific tournament stages (e.g. Playoffs, Group Stage) or view aggregate data across all stages.
+*   **Player Statistics**: Detailed tracking of Kills, Deaths, Assists, Gold Per Minute (GPM), and Win Rates per player, with search and sort capabilities.
+*   **Hero Meta Analysis**: Automated tracking of Pick Rates, Ban Rates, Win Rates, and average KDA for every hero in the pool.
+*   **Draft Analytics**: Win rate analysis based on Pick Order (First Pick vs Second Pick) to identify side advantages.
+
+### User Experience Enhancements
+*   **Sticky Headers**: Table headers remain fixed at the top of the viewport when scrolling through large datasets, maintaining context for every column.
+*   **Visual Data Bars**: Tables include color coded horizontal bars behind percentage values (Win Rate, Pick Rate) for rapid visual scanning of high and low performers.
+*   **Toast Notifications**: Non intrusive success and error messages appear at the bottom of the screen, providing feedback without interrupting the user workflow.
+*   **Keyboard Navigation**: Full support for Arrow Keys and Enter to navigate and select options within hero dropdown menus.
+*   **Dark Mode UI**: High contrast, esports inspired dark theme designed to reduce eye strain and comply with standard web accessibility guidelines.
+
+## Project Structure
+
+*   **Code.gs (Backend)**
+    *   Handles server side logic and Google Sheets integration.
+    *   Manages secure authentication with role based access control (Admin/Encoder).
+    *   Performs complex data aggregation for the analytics dashboard.
+    *   Exposes API endpoints for frontend data fetching and submission.
+
+*   **Index.html (Frontend)**
+    *   A Single Page Application (SPA) interface.
+    *   Built with Bootstrap 5 for responsive layout and custom CSS for theming.
+    *   Uses Vanilla JavaScript for state management, DOM manipulation, and server communication.
 
 ## Deployment
 
-1. Create a new Google Sheet
-2. Go to **Extensions → Apps Script**
-3. Replace `Code.gs` content with provided file
-4. Create new file `Index.html`, paste content
-5. Save and refresh the Google Sheet
+1.  Create a new Google Spreadsheet to serve as the database.
+2.  Navigate to **Extensions > Apps Script** in the top menu.
+3.  Copy the contents of `Code.gs` into the script editor's code file.
+4.  Create a new HTML file named `Index.html` in the script editor and paste the frontend code.
+5.  Deploy the project as a Web App:
+    *   **Execute as**: Me
+    *   **Who has access**: Anyone (or restricted as needed)
+
+## Database Schema
+
+The application interfaces with a specific 118 column schema structure:
+*   **Columns 1 to 5**: Match Metadata (Stage, Match Number, Battle ID, Duration, Winner).
+*   **Columns 6 to 25**: Ban and Pick Sequence (Blue/Red teams).
+*   **Columns 26 to 115**: Detailed Player Stats (10 players x 9 metrics each).
+*   **Columns 116 to 118**: Game Result Metadata (Winner, Duration raw).
 
 ## Default Credentials
 
@@ -27,16 +61,6 @@ A Google Apps Script solution for MOBA esports match data entry with a secure, f
 |----------|----------|------|
 | admin | admin123 | Admin |
 | encoder | encoder123 | Encoder |
-
-## File Structure
-
-```
-├── Code.gs          # Backend: login, analytics, data processing
-├── Index.html       # Frontend: Bootstrap 5 dark theme UI
-├── context.md       # Project context tracker
-├── CHANGELOG.md     # Version history
-└── MCC Data Summarizer - DB.csv  # Sample data reference
-```
 
 ## License
 
