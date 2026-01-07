@@ -404,53 +404,197 @@
         <div class="tab-content p-3">
             <!-- Analytics Tab -->
             <div class="tab-pane fade show active" id="analyticsTab">
-                <div class="row g-4 mb-4">
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <h2 id="statTotal">0</h2>
-                            <p>Total Games</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <h2 id="statBlue" class="text-primary">0%</h2>
-                            <p>Blue Side Win Rate</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <h2 id="statRed" class="text-danger">0%</h2>
-                            <p>Red Side Win Rate</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <h2 id="statDuration">0:00</h2>
-                            <p>Avg Duration</p>
-                        </div>
-                    </div>
-                </div>
+                <!-- Analytics Sub-Navigation -->
+                <ul class="nav nav-pills mb-4" id="analyticsSubTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="pill" href="#overviewPane">
+                            <i class="bi bi-speedometer2 me-1"></i>Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#playersPane">
+                            <i class="bi bi-people me-1"></i>Players
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#heroesPane">
+                            <i class="bi bi-shield me-1"></i>Heroes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#draftPane">
+                            <i class="bi bi-diagram-3 me-1"></i>Draft
+                        </a>
+                    </li>
+                </ul>
 
-                <div class="card p-4">
-                    <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Matches</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Stage</th>
-                                    <th>Blue Team</th>
-                                    <th>Red Team</th>
-                                    <th>Duration</th>
-                                    <th>Winner</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentMatchesBody">
-                                <tr>
-                                    <td colspan="6" class="text-center text-secondary">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="tab-content">
+                    <!-- Overview Pane -->
+                    <div class="tab-pane fade show active" id="overviewPane">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h2 id="statTotal">0</h2>
+                                    <p>Total Games</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h2 id="statBlue" class="text-primary">0%</h2>
+                                    <p>First Pick Win Rate</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h2 id="statRed" class="text-danger">0%</h2>
+                                    <p>Second Pick Win Rate</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <h2 id="statDuration">0:00</h2>
+                                    <p>Avg Duration</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card p-4">
+                            <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Matches</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Stage</th>
+                                            <th>Blue Team</th>
+                                            <th>Red Team</th>
+                                            <th>Duration</th>
+                                            <th>Winner</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentMatchesBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-secondary">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Players Pane -->
+                    <div class="tab-pane fade" id="playersPane">
+                        <div class="card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="bi bi-people me-2"></i>Player Statistics</h5>
+                                <input type="text" id="playerSearch" class="form-control w-auto"
+                                    placeholder="Search player..." oninput="filterPlayerTable()">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th onclick="sortPlayerTable('player')">Player ↕</th>
+                                            <th onclick="sortPlayerTable('games')">Games ↕</th>
+                                            <th onclick="sortPlayerTable('avgKDA')">Avg KDA ↕</th>
+                                            <th onclick="sortPlayerTable('winRate')">Win Rate ↕</th>
+                                            <th onclick="sortPlayerTable('avgGPM')">Avg GPM ↕</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="playerStatsBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-secondary">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Heroes Pane -->
+                    <div class="tab-pane fade" id="heroesPane">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="card p-4">
+                                    <h5 class="mb-3"><i class="bi bi-trophy me-2"></i>Most Picked Heroes</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Hero</th>
+                                                    <th>Picks</th>
+                                                    <th>Win Rate</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="mostPickedBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card p-4">
+                                    <h5 class="mb-3"><i class="bi bi-x-octagon me-2"></i>Most Banned Heroes</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Hero</th>
+                                                    <th>Bans</th>
+                                                    <th>Ban Rate</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="mostBannedBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0"><i class="bi bi-shield me-2"></i>All Heroes Statistics</h5>
+                                <input type="text" id="heroSearch" class="form-control w-auto"
+                                    placeholder="Search hero..." oninput="filterHeroTable()">
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th onclick="sortHeroTable('hero')">Hero ↕</th>
+                                            <th onclick="sortHeroTable('picks')">Picks ↕</th>
+                                            <th onclick="sortHeroTable('bans')">Bans ↕</th>
+                                            <th onclick="sortHeroTable('winRate')">Win Rate ↕</th>
+                                            <th onclick="sortHeroTable('avgKDA')">Avg KDA ↕</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="heroStatsBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-secondary">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Draft Pane -->
+                    <div class="tab-pane fade" id="draftPane">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="stat-card h-100">
+                                    <i class="bi bi-1-circle-fill text-primary fs-1 mb-2"></i>
+                                    <h2 id="firstPickWinRate" class="text-primary">0%</h2>
+                                    <p class="mb-0">First Pick Win Rate (Blue Side)</p>
+                                    <small class="text-secondary" id="firstPickGames">0 wins</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card h-100">
+                                    <i class="bi bi-2-circle-fill text-danger fs-1 mb-2"></i>
+                                    <h2 id="secondPickWinRate" class="text-danger">0%</h2>
+                                    <p class="mb-0">Second Pick Win Rate (Red Side)</p>
+                                    <small class="text-secondary" id="secondPickGames">0 wins</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -863,7 +1007,15 @@
         }
 
         // Analytics
+        let playerStatsData = [];
+        let heroStatsData = [];
+        let playerSortField = 'games';
+        let playerSortAsc = false;
+        let heroSortField = 'picks';
+        let heroSortAsc = false;
+
         function loadAnalytics() {
+            // Load summary data
             google.script.run
                 .withSuccessHandler(data => {
                     document.getElementById('statTotal').textContent = data.totalGames || 0;
@@ -873,9 +1025,37 @@
                 })
                 .getSummaryData();
 
+            // Load recent matches
             google.script.run
                 .withSuccessHandler(renderRecentMatches)
                 .getLastMatches(5);
+
+            // Load player stats
+            google.script.run
+                .withSuccessHandler(data => {
+                    playerStatsData = data || [];
+                    renderPlayerTable();
+                })
+                .getPlayerStats();
+
+            // Load hero stats
+            google.script.run
+                .withSuccessHandler(data => {
+                    heroStatsData = data.heroes || [];
+                    renderHeroTable();
+                    renderMostPickedBanned(data);
+                })
+                .getHeroStats();
+
+            // Load draft analytics
+            google.script.run
+                .withSuccessHandler(data => {
+                    document.getElementById('firstPickWinRate').textContent = (data.firstPickWinRate || 0) + '%';
+                    document.getElementById('secondPickWinRate').textContent = (data.secondPickWinRate || 0) + '%';
+                    document.getElementById('firstPickGames').textContent = (data.blueWins || 0) + ' wins out of ' + (data.totalGames || 0);
+                    document.getElementById('secondPickGames').textContent = (data.redWins || 0) + ' wins out of ' + (data.totalGames || 0);
+                })
+                .getDraftAnalytics();
         }
 
         function renderRecentMatches(matches) {
@@ -895,6 +1075,97 @@
           <td class="${m.winner === 'Blue' ? 'winner-blue' : 'winner-red'}">${m.winner || ''}</td>
         </tr>
       `).join('');
+        }
+
+        // Player stats table
+        function renderPlayerTable() {
+            const tbody = document.getElementById('playerStatsBody');
+            const search = (document.getElementById('playerSearch')?.value || '').toLowerCase();
+
+            let filtered = playerStatsData.filter(p => p.player.toLowerCase().includes(search));
+            filtered.sort((a, b) => {
+                const aVal = a[playerSortField];
+                const bVal = b[playerSortField];
+                if (typeof aVal === 'string') return playerSortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                return playerSortAsc ? aVal - bVal : bVal - aVal;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">No data</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => `
+                <tr>
+                    <td>${p.player}</td>
+                    <td>${p.games}</td>
+                    <td>${p.avgKDA}</td>
+                    <td class="${p.winRate >= 50 ? 'text-success' : 'text-danger'}">${p.winRate}%</td>
+                    <td>${p.avgGPM}</td>
+                </tr>
+            `).join('');
+        }
+
+        function sortPlayerTable(field) {
+            if (playerSortField === field) playerSortAsc = !playerSortAsc;
+            else { playerSortField = field; playerSortAsc = false; }
+            renderPlayerTable();
+        }
+
+        function filterPlayerTable() {
+            renderPlayerTable();
+        }
+
+        // Hero stats table
+        function renderHeroTable() {
+            const tbody = document.getElementById('heroStatsBody');
+            const search = (document.getElementById('heroSearch')?.value || '').toLowerCase();
+
+            let filtered = heroStatsData.filter(h => h.hero.toLowerCase().includes(search));
+            filtered.sort((a, b) => {
+                const aVal = a[heroSortField];
+                const bVal = b[heroSortField];
+                if (typeof aVal === 'string') return heroSortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                return heroSortAsc ? aVal - bVal : bVal - aVal;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">No data</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(h => `
+                <tr>
+                    <td>${h.hero}</td>
+                    <td>${h.picks}</td>
+                    <td>${h.bans}</td>
+                    <td class="${h.winRate >= 50 ? 'text-success' : 'text-danger'}">${h.winRate}%</td>
+                    <td>${h.avgKDA}</td>
+                </tr>
+            `).join('');
+        }
+
+        function sortHeroTable(field) {
+            if (heroSortField === field) heroSortAsc = !heroSortAsc;
+            else { heroSortField = field; heroSortAsc = false; }
+            renderHeroTable();
+        }
+
+        function filterHeroTable() {
+            renderHeroTable();
+        }
+
+        function renderMostPickedBanned(data) {
+            const pickedBody = document.getElementById('mostPickedBody');
+            const bannedBody = document.getElementById('mostBannedBody');
+
+            pickedBody.innerHTML = (data.mostPicked || []).map(h => `
+                <tr><td>${h.hero}</td><td>${h.picks}</td><td class="${h.winRate >= 50 ? 'text-success' : 'text-danger'}">${h.winRate}%</td></tr>
+            `).join('') || '<tr><td colspan="3" class="text-secondary">No data</td></tr>';
+
+            bannedBody.innerHTML = (data.mostBanned || []).map(h => `
+                <tr><td>${h.hero}</td><td>${h.bans}</td><td>${h.banRate}%</td></tr>
+            `).join('') || '<tr><td colspan="3" class="text-secondary">No data</td></tr>';
         }
 
         function loadNextRowNumber() {

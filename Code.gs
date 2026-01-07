@@ -329,6 +329,241 @@ function checkBattleIdExists(battleId) {
   }
 }
 
+// ============ ADVANCED ANALYTICS ============
+
+/**
+ * Column mapping for player data extraction
+ * Blue team roles start at column 16 (index 15)
+ * Red team roles start at column 71 (index 70)
+ */
+const ROLE_COLUMNS = {
+  blue: {
+    gold:     { player: 15, hero: 16, kills: 17, deaths: 18, assists: 19, gold: 20 },
+    jungler:  { player: 24, hero: 25, kills: 26, deaths: 27, assists: 28, gold: 29 },
+    exp:      { player: 33, hero: 34, kills: 35, deaths: 36, assists: 37, gold: 38 },
+    mid:      { player: 42, hero: 43, kills: 44, deaths: 45, assists: 46, gold: 47 },
+    roamer:   { player: 51, hero: 52, kills: 53, deaths: 54, assists: 55, gold: 56 }
+  },
+  red: {
+    gold:     { player: 70, hero: 71, kills: 72, deaths: 73, assists: 74, gold: 75 },
+    jungler:  { player: 79, hero: 80, kills: 81, deaths: 82, assists: 83, gold: 84 },
+    exp:      { player: 88, hero: 89, kills: 90, deaths: 91, assists: 92, gold: 93 },
+    mid:      { player: 97, hero: 98, kills: 99, deaths: 100, assists: 101, gold: 102 },
+    roamer:   { player: 106, hero: 107, kills: 108, deaths: 109, assists: 110, gold: 111 }
+  }
+};
+
+// Pick columns: Blue 8-14 (indices 7-13), Red 63-69 (indices 62-68)
+const PICK_COLUMNS = {
+  blue: [8, 9, 10, 13, 14], // Pick1,2,3,4,5 indices
+  red: [63, 64, 65, 68, 69]
+};
+
+// Ban columns: Blue 5-7,11-12, Red 60-62,66-67
+const BAN_COLUMNS = {
+  blue: [5, 6, 7, 11, 12], // Ban1,2,3,4,5 indices
+  red: [60, 61, 62, 66, 67]
+};
+
+/**
+ * Gets player statistics: KDA, winrate, GPM
+ * @returns {Array} Array of {player, games, avgKDA, winRate, avgGPM}
+ */
+function getPlayerStats() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
+    
+    if (!dbSheet || dbSheet.getLastRow() <= 1) return [];
+    
+    const data = dbSheet.getDataRange().getValues();
+    const playerMap = {};
+    
+    for (let i = 1; i < data.length; i++) {
+      const winner = data[i][117] ? data[i][117].toString().toLowerCase() : '';
+      const duration = parseDuration(data[i][116]);
+      
+      // Process each team and role
+      ['blue', 'red'].forEach(team => {
+        const teamWon = winner === team;
+        Object.keys(ROLE_COLUMNS[team]).forEach(role => {
+          const cols = ROLE_COLUMNS[team][role];
+          const playerName = data[i][cols.player];
+          
+          if (playerName && playerName.toString().trim()) {
+            const key = playerName.toString().trim();
+            if (!playerMap[key]) {
+              playerMap[key] = { games: 0, wins: 0, kills: 0, deaths: 0, assists: 0, gold: 0, duration: 0 };
+            }
+            
+            playerMap[key].games++;
+            if (teamWon) playerMap[key].wins++;
+            playerMap[key].kills += parseInt(data[i][cols.kills]) || 0;
+            playerMap[key].deaths += parseInt(data[i][cols.deaths]) || 0;
+            playerMap[key].assists += parseInt(data[i][cols.assists]) || 0;
+            playerMap[key].gold += parseInt(data[i][cols.gold]) || 0;
+            playerMap[key].duration += duration;
+          }
+        });
+      });
+    }
+    
+    return Object.entries(playerMap)
+      .map(([player, stats]) => ({
+        player,
+        games: stats.games,
+        avgKDA: stats.deaths > 0 
+          ? ((stats.kills + stats.assists) / stats.deaths).toFixed(2)
+          : (stats.kills + stats.assists).toFixed(2),
+        kills: stats.kills,
+        deaths: stats.deaths,
+        assists: stats.assists,
+        winRate: stats.games > 0 ? Math.round((stats.wins / stats.games) * 100) : 0,
+        avgGPM: stats.duration > 0 ? Math.round(stats.gold / (stats.duration / 60)) : 0
+      }))
+      .sort((a, b) => b.games - a.games);
+  } catch (error) {
+    console.error('getPlayerStats error:', error);
+    return [];
+  }
+}
+
+/**
+ * Gets hero statistics: pick/ban rates, winrates, KDA
+ * @returns {Object} {heroes: Array, mostPicked: Array, mostBanned: Array}
+ */
+function getHeroStats() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
+    
+    if (!dbSheet || dbSheet.getLastRow() <= 1) return { heroes: [], mostPicked: [], mostBanned: [] };
+    
+    const data = dbSheet.getDataRange().getValues();
+    const heroMap = {};
+    const banCount = {};
+    const totalGames = data.length - 1;
+    
+    for (let i = 1; i < data.length; i++) {
+      const winner = data[i][117] ? data[i][117].toString().toLowerCase() : '';
+      
+      // Count bans
+      ['blue', 'red'].forEach(team => {
+        BAN_COLUMNS[team].forEach(col => {
+          const hero = data[i][col];
+          if (hero && hero.toString().trim()) {
+            const key = hero.toString().trim();
+            banCount[key] = (banCount[key] || 0) + 1;
+          }
+        });
+      });
+      
+      // Process picks and player stats
+      ['blue', 'red'].forEach(team => {
+        const teamWon = winner === team;
+        Object.keys(ROLE_COLUMNS[team]).forEach(role => {
+          const cols = ROLE_COLUMNS[team][role];
+          const heroName = data[i][cols.hero];
+          
+          if (heroName && heroName.toString().trim()) {
+            const key = heroName.toString().trim();
+            if (!heroMap[key]) {
+              heroMap[key] = { picks: 0, wins: 0, kills: 0, deaths: 0, assists: 0 };
+            }
+            
+            heroMap[key].picks++;
+            if (teamWon) heroMap[key].wins++;
+            heroMap[key].kills += parseInt(data[i][cols.kills]) || 0;
+            heroMap[key].deaths += parseInt(data[i][cols.deaths]) || 0;
+            heroMap[key].assists += parseInt(data[i][cols.assists]) || 0;
+          }
+        });
+      });
+    }
+    
+    const heroes = Object.entries(heroMap)
+      .map(([hero, stats]) => ({
+        hero,
+        picks: stats.picks,
+        bans: banCount[hero] || 0,
+        pickRate: totalGames > 0 ? Math.round((stats.picks / totalGames) * 100) : 0,
+        banRate: totalGames > 0 ? Math.round(((banCount[hero] || 0) / totalGames) * 100) : 0,
+        winRate: stats.picks > 0 ? Math.round((stats.wins / stats.picks) * 100) : 0,
+        avgKDA: stats.deaths > 0 
+          ? ((stats.kills + stats.assists) / stats.deaths).toFixed(2)
+          : (stats.kills + stats.assists).toFixed(2)
+      }))
+      .sort((a, b) => b.picks - a.picks);
+    
+    const mostPicked = [...heroes].slice(0, 10);
+    const mostBanned = Object.entries(banCount)
+      .map(([hero, bans]) => ({ hero, bans, banRate: Math.round((bans / totalGames) * 100) }))
+      .sort((a, b) => b.bans - a.bans)
+      .slice(0, 10);
+    
+    return { heroes, mostPicked, mostBanned };
+  } catch (error) {
+    console.error('getHeroStats error:', error);
+    return { heroes: [], mostPicked: [], mostBanned: [] };
+  }
+}
+
+/**
+ * Gets draft analytics: first/second pick winrates
+ * @returns {Object} {firstPickWinRate, secondPickWinRate, totalGames}
+ */
+function getDraftAnalytics() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const dbSheet = ss.getSheetByName(CONFIG.SHEETS.DB);
+    
+    if (!dbSheet || dbSheet.getLastRow() <= 1) {
+      return { firstPickWinRate: 0, secondPickWinRate: 0, totalGames: 0, blueWins: 0, redWins: 0 };
+    }
+    
+    const data = dbSheet.getDataRange().getValues();
+    let totalGames = 0, blueWins = 0, redWins = 0;
+    
+    for (let i = 1; i < data.length; i++) {
+      const winner = data[i][117] ? data[i][117].toString().toLowerCase() : '';
+      if (winner === 'blue' || winner === 'red') {
+        totalGames++;
+        if (winner === 'blue') blueWins++;
+        if (winner === 'red') redWins++;
+      }
+    }
+    
+    // In MLBB draft: Blue = First Pick, Red = Second Pick
+    return {
+      firstPickWinRate: totalGames > 0 ? Math.round((blueWins / totalGames) * 100) : 0,
+      secondPickWinRate: totalGames > 0 ? Math.round((redWins / totalGames) * 100) : 0,
+      totalGames,
+      blueWins,
+      redWins
+    };
+  } catch (error) {
+    console.error('getDraftAnalytics error:', error);
+    return { firstPickWinRate: 0, secondPickWinRate: 0, totalGames: 0 };
+  }
+}
+
+/**
+ * Helper function to parse duration string to seconds
+ */
+function parseDuration(duration) {
+  if (!duration) return 0;
+  const str = duration.toString();
+  const parts = str.split(':');
+  if (parts.length === 2) {
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  } else if (parts.length === 3) {
+    return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+  }
+  return 0;
+}
+
+// ============ FORM PROCESSING ============
+
 /**
  * Processes and saves form data to the DB sheet
  * @param {Object} formData Form data from the frontend
